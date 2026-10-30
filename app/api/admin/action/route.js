@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase, getSettings, links } from '@/lib/supabase';
-import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob } from '@/lib/mail';
+import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected } from '@/lib/mail';
 import { revalidatePath } from 'next/cache';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 export const maxDuration = 300;
@@ -13,6 +13,7 @@ export async function POST(req) {
     if (error || !row) return bad('Could not update');
     if (!mailReady()) return NextResponse.json({ row, emailed: false });
     try {
+      if (b.type === 'approve' && !b.resend && row.referrer_id) { const { data: rd } = await supabase.rpc('admin_referrers', { k }); const ref = (rd?.referrers || []).find(x => x.id === row.referrer_id); if (ref) await send(ref.email, `You earned ₦${(row.amount / 10).toLocaleString('en-NG')} 🎉`, tplRefEarned(ref.name, row.amount / 10, row.package, ref.balance)).catch(() => {}); }
       if (b.type === 'approve') { const s = await getSettings(); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, links(row.package === 'vip' ? s.vip_links : s.regular_links))); }
       else await send(row.email, 'About your Sommyart Academy payment', wrap('We could not confirm your payment', `<p>Hi ${row.full_name.replace(/</g,'')},</p><p>We could not confirm the payment receipt you uploaded. Please reply to this email or message us on WhatsApp (09134559428) so we can sort it out quickly.</p><p>Sommyart Academy Team</p>`));
       return NextResponse.json({ row, emailed: true });
@@ -87,6 +88,13 @@ export async function POST(req) {
     }
     return NextResponse.json({ job, count });
   }
+  if (b.type === 'payout') {
+    const { data: p, error } = await supabase.rpc('admin_payout', { k, p_id: b.id, p_status: b.status });
+    if (error || !p) return bad('Could not update (maybe already processed)');
+    await send(p.email, p.status === 'paid' ? (p.kind === 'withdraw' ? `Paid: ₦${p.amount.toLocaleString('en-NG')} referral bonus 💸` : 'Referral balance applied to your fee ✅') : 'About your referral request', p.status === 'paid' ? tplRefPaid(p) : tplRefRejected(p)).catch(() => {});
+    return NextResponse.json({ payout: p });
+  }
+  if (b.type === 'link-referrer') { const { error } = await supabase.rpc('admin_link_referrer', { k, p_enrollment: b.id, p_referrer: b.referrer }); if (error) return bad('Could not link'); return NextResponse.json({ ok: true }); }
   if (b.type === 'job-delete') { const { error } = await supabase.rpc('admin_delete_job', { k, p_id: b.id }); if (error) return bad('Could not delete'); return NextResponse.json({ ok: true }); }
   return bad('Unknown action');
 }

@@ -1,13 +1,15 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { PACKAGES, naira } from '@/lib/config';
-export default function EnrollForm({ pkg, bank }) {
+export default function EnrollForm({ pkg, bank, refCode }) {
   const p = PACKAGES[pkg]; const r = useRouter();
   const [f, setF] = useState({ name: '', email: '', phone: '' });
   const [file, setFile] = useState(null); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false); const [copied, setCopied] = useState(false);
   const ready = bank.number && bank.bank;
+  const [referred, setReferred] = useState(!!refCode); const [ref, setRef] = useState(refCode || '');
+  useEffect(() => { if (!refCode) { try { const r = localStorage.getItem('sa_ref'); if (r) { setRef(r); setReferred(true); } } catch {} } }, [refCode]);
   async function submit(e) {
     e.preventDefault(); setErr('');
     if (!file) return setErr('Please upload your payment receipt.');
@@ -18,7 +20,7 @@ export default function EnrollForm({ pkg, bank }) {
       const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
       const up = await supabase.storage.from('receipts').upload(path, file, { contentType: file.type });
       if (up.error) throw new Error('Upload failed. Use a JPG, PNG or PDF and try again.');
-      const res = await fetch('/api/enroll', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...f, pkg, receipt: path }) });
+      const res = await fetch('/api/enroll', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...f, pkg, receipt: path, ref: referred ? ref : '' }) });
       const j = await res.json(); if (!res.ok) throw new Error(j.error || 'Something went wrong.');
       r.push(`/thank-you?pkg=${pkg}&name=${encodeURIComponent(f.name.split(' ')[0])}`);
     } catch (x) { setErr(x.message); setBusy(false); }
@@ -45,6 +47,8 @@ export default function EnrollForm({ pkg, bank }) {
       <label>Full name</label><input required value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="e.g. Chiamaka Okafor" />
       <label>Email address (for your Google Classroom access)</label><input required type="email" value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="you@gmail.com" />
       <label>WhatsApp / phone number</label><input required value={f.phone} onChange={e=>setF({...f,phone:e.target.value})} placeholder="080..." />
+      <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}><input type="checkbox" style={{ width: 'auto' }} checked={referred} onChange={e => setReferred(e.target.checked)} /> Someone referred me (optional)</label>
+      {referred && <input value={ref} onChange={e => setRef(e.target.value)} placeholder="Referrer's code or WhatsApp number" />}
       <label>Payment receipt</label>
       <label className={'drop'+(file?' has':'')} style={{fontWeight:400}}>
         <input type="file" accept="image/*,application/pdf" style={{display:'none'}} onChange={e=>setFile(e.target.files[0]||null)} />
