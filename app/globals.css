@@ -282,3 +282,5 @@ footer a{transition:color .2s}footer a:hover{color:#ff8be0}
  nav.top .links::-webkit-scrollbar{display:none}
  nav.top .links a{white-space:nowrap}
 }
+.sbadge.schol{background:#E6F8EE;color:#11834a;margin-left:6px}
+.pill.schol{background:#E6F8EE;color:#11834a}

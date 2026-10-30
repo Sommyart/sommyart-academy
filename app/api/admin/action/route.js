@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase, getSettings, links } from '@/lib/supabase';
-import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected } from '@/lib/mail';
+import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding } from '@/lib/mail';
 import { revalidatePath } from 'next/cache';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 export const maxDuration = 300;
@@ -15,7 +15,7 @@ export async function POST(req) {
     try {
       if (b.type === 'approve' && !b.resend && row.referrer_id) { const { data: rd } = await supabase.rpc('admin_referrers', { k }); const ref = (rd?.referrers || []).find(x => x.id === row.referrer_id); if (ref) await send(ref.email, `You earned ₦${(row.amount / 10).toLocaleString('en-NG')} 🎉`, tplRefEarned(ref.name, row.amount / 10, row.package, ref.balance)).catch(() => {}); }
       if (b.type === 'approve') { const s = await getSettings(); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, links(row.package === 'vip' ? s.vip_links : s.regular_links))); }
-      else await send(row.email, 'About your Sommyart Academy payment', wrap('We could not confirm your payment', `<p>Hi ${row.full_name.replace(/</g,'')},</p><p>We could not confirm the payment receipt you uploaded. Please reply to this email or message us on WhatsApp (09134559428) so we can sort it out quickly.</p><p>Sommyart Academy Team</p>`));
+      else await send(row.email, 'About your Sommyart Academy payment', wrap('We could not confirm your payment', `<p>Hi ${row.full_name.replace(/</g,'')},</p><p>We could not confirm the payment receipt you uploaded. Please reply to this email or message us on WhatsApp (+234 913 455 9428) so we can sort it out quickly.</p><p>Sommyart Academy Team</p>`));
       return NextResponse.json({ row, emailed: true });
     } catch (e) { return NextResponse.json({ row, emailed: false, note: 'Gmail error: ' + e.message }); }
   }
@@ -61,6 +61,15 @@ export async function POST(req) {
   if (b.type === 'testimonial') {
     const { error } = await supabase.rpc('admin_testimonial', { k, p_id: b.id, p_action: b.action });
     if (error) return bad('Could not update'); revalidatePath('/'); return NextResponse.json({ ok: true });
+  }
+  if (b.type === 'add-student') {
+    const st = b.student || {};
+    if (!st.first || !st.surname || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(st.email || '')) return bad('Fill in name and a valid email');
+    const { data: row, error } = await supabase.rpc('admin_add_student', { k, p: st });
+    if (error || !row) return bad('Could not add student');
+    let emailed = false;
+    if (st.notify && mailReady()) { try { const s = await getSettings(); const ls = links(row.package === 'vip' ? s.vip_links : s.regular_links); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, ls)); await send(row.email, 'How to join your Google Classroom 🎓 (video guide)', tplOnboarding(row, ls)); emailed = true; } catch {} }
+    return NextResponse.json({ row, emailed });
   }
   if (b.type === 'student-update') {
     const patch = {}; for (const key of ['badge', 'completed', 'certificate_url']) if (key in (b.patch || {})) patch[key] = b.patch[key];

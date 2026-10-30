@@ -7,6 +7,7 @@ import ReviewsTab from './ReviewsTab';
 import StudentsTab from './StudentsTab';
 import JobsTab from './JobsTab';
 import ReferralsTab from './ReferralsTab';
+import AddStudent from './AddStudent';
 const act = async (body) => { const r = await fetch('/api/admin/action', { method: 'POST', body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Failed'); return j; };
 export default function Dashboard({ rows: init, subs, posts, reviews, students, jobs, refdata, settings, mail, err, base }) {
   const [rows, setRows] = useState(init); const [tab, setTab] = useState('pending'); const [busy, setBusy] = useState(''); const [msg, setMsg] = useState('');
@@ -31,17 +32,18 @@ export default function Dashboard({ rows: init, subs, posts, reviews, students, 
       <div className="kpis">
         <div className="kpi"><b style={{color:'#b26a00'}}>{cnt('pending')}</b><span>Awaiting approval</span></div>
         <div className="kpi"><b style={{color:'#11834a'}}>{cnt('approved')}</b><span>Active students</span></div>
-        <div className="kpi"><b>{rows.filter(r=>r.status==='approved'&&r.package==='vip').length}</b><span>VIP students</span></div>
+        <div className="kpi"><b>{rows.filter(r=>r.status==='approved'&&r.package==='vip').length} <small style={{fontSize:14,color:'#11834a'}}>+ {rows.filter(r=>r.status==='approved'&&r.scholarship).length} 🎓</small></b><span>VIP students · scholarships</span></div>
         <div className="kpi"><b>{naira(revenue)}</b><span>Confirmed revenue</span></div>
       </div>
       <div className="tabs">{[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All'],['students',`Students${students.filter(x=>x.verified&&!x.badge).length?' 🔔'+students.filter(x=>x.verified&&!x.badge).length:''}`],['referrals',`Referrals${refdata.payouts.filter(p=>p.status==='pending').length?' 💸'+refdata.payouts.filter(p=>p.status==='pending').length:''}`],['jobs','Jobs'],['blog','Blog'],['reviews','Reviews'],['subscribers','Subscribers'],['newsletter','Send email'],['settings','Settings']].map(([k,l])=><button key={k} className={tab===k?'on':''} onClick={()=>{setTab(k);setMsg('')}}>{l}{['pending','approved','rejected'].includes(k)?` (${cnt(k)})`:''}</button>)}</div>
       {msg && <p style={{margin:'0 0 14px',fontWeight:600}}>{msg}</p>}
+      {['pending','approved','all'].includes(tab) && <AddStudent setMsg={setMsg} onAdded={(row)=>{setRows([row,...rows]);setTab('approved')}} />}
       {['pending','approved','rejected','all'].includes(tab) && (list.length ? list.map(r => {
         const manual = r.receipt_path.startsWith('manual/'); const url = manual ? '#' : base + r.receipt_path; const pdf = r.receipt_path.endsWith('.pdf');
         return <div key={r.id} className="row-card">
-          <a className="thumb" href={url} target="_blank" rel="noreferrer">{manual ? '✍️ Added manually' : pdf ? '📄 PDF' : <img src={url} alt="receipt" className="thumb" />}</a>
-          <div><b>{r.full_name}</b> <span className={'pill '+r.package}>{r.package.toUpperCase()}</span> <span className={'pill '+r.status}>{r.status}</span>
-            <div style={{fontSize:14,color:'#555'}}>{r.email} · {r.phone}<br/>{naira(r.amount)} · {new Date(r.created_at).toLocaleString('en-NG')}</div>
+          <a className="thumb" href={url} target="_blank" rel="noreferrer">{r.scholarship ? '🎓 Scholarship' : manual ? '✍️ Added manually' : pdf ? '📄 PDF' : <img src={url} alt="receipt" className="thumb" />}</a>
+          <div><b>{r.full_name}</b> <span className={'pill '+r.package}>{r.package.toUpperCase()}</span>{r.scholarship && <> <span className="pill schol">🎓 Scholarship</span></>} <span className={'pill '+r.status}>{r.status}</span>
+            <div style={{fontSize:14,color:'#555'}}>{r.email} · {r.phone}{r.gender ? ' · '+r.gender : ''}<br/>{naira(r.amount)} · {new Date(r.created_at).toLocaleString('en-NG')}</div>
             {(r.referrer_id || r.ref_input) && <div style={{fontSize:13,marginTop:4}}>🎁 Referred by: {r.referrer_id ? <b>{(refdata.referrers.find(x=>x.id===r.referrer_id)||{}).name} ({naira(r.amount/10)} bonus{r.status==='approved'?' credited':' on approval'})</b> : <><span style={{color:'#b26a00'}}>“{r.ref_input}” (no match)</span> <select style={{width:'auto',padding:'4px 8px',fontSize:13}} defaultValue="" onChange={async e=>{if(!e.target.value)return;try{await act({type:'link-referrer',id:r.id,referrer:e.target.value});setRows(rows.map(x=>x.id===r.id?{...x,referrer_id:e.target.value}:x));setMsg('✓ Referrer linked.')}catch(x){setMsg('✗ '+x.message)}}}><option value="">Link to referrer…</option>{refdata.referrers.filter(x=>x.verified).map(x=><option key={x.id} value={x.id}>{x.name} · {x.whatsapp}</option>)}</select></>}</div>}</div>
           <div className="acts">
             {!manual && <a className="btn btn-dark sm" href={url} target="_blank" rel="noreferrer">Receipt</a>}

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { PACKAGES, naira } from '@/lib/config';
 export default function EnrollForm({ pkg, bank, refCode }) {
   const p = PACKAGES[pkg]; const r = useRouter();
-  const [f, setF] = useState({ name: '', email: '', phone: '' });
+  const [f, setF] = useState({ first: '', surname: '', email: '', gender: '', phone: '' });
   const [file, setFile] = useState(null); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false); const [copied, setCopied] = useState(false);
   const ready = bank.number && bank.bank;
   const [referred, setReferred] = useState(!!refCode); const [ref, setRef] = useState(refCode || '');
@@ -22,7 +22,7 @@ export default function EnrollForm({ pkg, bank, refCode }) {
       if (up.error) throw new Error('Upload failed. Use a JPG, PNG or PDF and try again.');
       const res = await fetch('/api/enroll', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...f, pkg, receipt: path, ref: referred ? ref : '' }) });
       const j = await res.json(); if (!res.ok) throw new Error(j.error || 'Something went wrong.');
-      r.push(`/thank-you?pkg=${pkg}&name=${encodeURIComponent(f.name.split(' ')[0])}`);
+      r.push(`/thank-you?pkg=${pkg}&name=${encodeURIComponent(f.first)}`);
     } catch (x) { setErr(x.message); setBusy(false); }
   }
   return (<div className="grid2">
@@ -44,9 +44,10 @@ export default function EnrollForm({ pkg, bank, refCode }) {
     <form className="formcard" onSubmit={submit}>
       <span className="eyebrow">Step 3 of 3 · Upload receipt</span>
       <h2 style={{fontSize:22}}>Your details</h2>
-      <label>Full name</label><input required value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="e.g. Chiamaka Okafor" />
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div><label>First name</label><input required value={f.first} onChange={e=>setF({...f,first:e.target.value})} placeholder="e.g. Chiamaka" /></div><div><label>Surname</label><input required value={f.surname} onChange={e=>setF({...f,surname:e.target.value})} placeholder="e.g. Okafor" /></div></div>
       <label>Email address (for your Google Classroom access)</label><input required type="email" value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="you@gmail.com" />
-      <label>WhatsApp / phone number</label><input required value={f.phone} onChange={e=>setF({...f,phone:e.target.value})} placeholder="080..." />
+      <label>Gender</label><select required value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option value="" disabled>Select gender</option><option>Male</option><option>Female</option></select>
+      <label>Phone number (WhatsApp)</label><input required inputMode="tel" value={f.phone} onChange={e=>setF({...f,phone:e.target.value})} placeholder="+234 80..." />
       <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}><input type="checkbox" style={{ width: 'auto' }} checked={referred} onChange={e => setReferred(e.target.checked)} /> Someone referred me (optional)</label>
       {referred && <input value={ref} onChange={e => setRef(e.target.value)} placeholder="Referrer's code or WhatsApp number" />}
       <label>Payment receipt</label>

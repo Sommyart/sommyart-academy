@@ -2,7 +2,7 @@
 import { useState } from 'react';
 const call = async (body) => { const r = await fetch('/api/student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Something went wrong'); return j; };
 export default function Auth() {
-  const [mode, setMode] = useState('login'); const [f, setF] = useState({ email: '', password: '', first: '', last: '', otp: '' });
+  const [mode, setMode] = useState('login'); const [f, setF] = useState({ email: '', password: '', first: '', last: '', gender: '', phone: '', otp: '' });
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [note, setNote] = useState(''); const [show, setShow] = useState(false);
   const set = (k) => ({ value: f[k], onChange: (e) => setF({ ...f, [k]: e.target.value }) });
   async function run(fn) { setErr(''); setNote(''); setBusy(true); try { await fn(); } catch (x) { setErr(x.message); } setBusy(false); }
@@ -22,7 +22,8 @@ export default function Auth() {
         <label>Enter the 6-digit code</label><input required inputMode="numeric" maxLength={6} {...set('otp')} className="otp" placeholder="••••••" autoFocus />
         <p className="note">Can't find it? Check spam, or <a href="#" onClick={(e) => { e.preventDefault(); run(async () => { await call({ action: 'resend', email: f.email }); setNote('New code sent.'); }); }}>send a new code</a>.</p>
       </>) : (<>
-        {mode === 'signup' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}><div><label>First name</label><input required {...set('first')} /></div><div><label>Last name</label><input required {...set('last')} /></div></div>}
+        {mode === 'signup' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}><div><label>First name</label><input required {...set('first')} /></div><div><label>Surname</label><input required {...set('last')} /></div></div>}
+        {mode === 'signup' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}><div><label>Gender</label><select required {...set('gender')}><option value="" disabled>Select</option><option>Male</option><option>Female</option></select></div><div><label>Phone number</label><input required inputMode="tel" {...set('phone')} placeholder="+234 80..." /></div></div>}
         <label>Email</label><input required type="email" {...set('email')} placeholder={mode === 'signup' ? 'The exact email you paid with' : ''} />
         <label>Password</label><div style={{ position: 'relative' }}><input required type={show ? 'text' : 'password'} minLength={mode === 'signup' ? 8 : 1} {...set('password')} placeholder={mode === 'signup' ? 'At least 8 characters' : ''} /><button type="button" className="peek" onClick={() => setShow(!show)}>{show ? 'Hide' : 'Show'}</button></div>
       </>)}

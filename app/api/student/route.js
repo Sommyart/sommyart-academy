@@ -13,8 +13,8 @@ export async function POST(req) {
   const email = String(b.email || '').trim().toLowerCase();
   if (a === 'signup') {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err('Enter a valid email.');
-    if (!b.first || !b.last) return err('Enter your first and last name.');
-    const { data, error } = await supabase.rpc('st_signup', { k: K(), p_email: email, p_pw: String(b.password || ''), p_first: String(b.first), p_last: String(b.last) });
+    if (!b.first || !b.last) return err('Enter your first name and surname.');
+    const { data, error } = await supabase.rpc('st_signup', { k: K(), p_email: email, p_pw: String(b.password || ''), p_first: String(b.first), p_last: String(b.last), p_gender: String(b.gender || ''), p_phone: String(b.phone || '') });
     if (error) return err('Could not create account. Try again.'); if (data.error) return err(data.error);
     try { await send(email, `${data.otp} is your Sommyart Academy code`, tplOtp(b.first, data.otp)); } catch { return err('Could not send the code email. Try again shortly.'); }
     return NextResponse.json({ ok: true });

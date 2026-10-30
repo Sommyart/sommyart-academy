@@ -23,7 +23,7 @@ export default function StudentDash({ me, classrooms }) {
   return (<div className="wrap sd">
     <div className="sd-head">
       <label className="sd-avatar" title="Change photo">{p.photo ? <img src={p.photo} alt="" /> : <span>{p.first[0]}{p.last[0]}</span>}<em>{busy === 'photo' ? '…' : <Icon name="ImagePlus" size={16} />}</em><input type="file" accept="image/*" onChange={photo} hidden /></label>
-      <div><h1>Welcome, {p.first} 👋</h1><Badge b={me.badge} /><p className="note">{me.email}</p></div>
+      <div><h1>Welcome, {p.first} 👋</h1><Badge b={me.badge} />{me.scholarship && <span className="sbadge schol">🎓 Scholarship</span>}<p className="note">{me.email}</p></div>
       <button className="btn sm" style={{ border: '1px solid #ddd', marginLeft: 'auto' }} onClick={logout}>Log out</button>
     </div>
     {locked && <div className="banner">Your account is active. Our team will confirm your enrollment and assign your badge shortly. You'll get an email when your portal is unlocked.</div>}
@@ -37,7 +37,7 @@ export default function StudentDash({ me, classrooms }) {
           : <p className="note">{me.completed ? 'You have completed your course. Your certificate is being prepared and will appear here and in your email.' : 'Complete your course and your certificate will appear here and be emailed to you.'}</p>}
       </section>
       <section className="formcard"><h3><Icon name="Users" size={20} /> My profile</h3>
-        <form onSubmit={saveProfile}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}><div><label>First name</label><input required value={p.first} onChange={e => setP({ ...p, first: e.target.value })} /></div><div><label>Last name</label><input required value={p.last} onChange={e => setP({ ...p, last: e.target.value })} /></div></div>
+        <form onSubmit={saveProfile}><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}><div><label>First name</label><input required value={p.first} onChange={e => setP({ ...p, first: e.target.value })} /></div><div><label>Surname</label><input required value={p.last} onChange={e => setP({ ...p, last: e.target.value })} /></div></div>
           <p className="note">Tap your picture at the top to change your photo.</p>
           <button className="btn btn-dark sm" style={{ marginTop: 10 }} disabled={busy === 'p'}>Save</button>{msg.p && <p className="note">{msg.p}</p>}</form>
       </section>
