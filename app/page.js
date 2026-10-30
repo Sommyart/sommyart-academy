@@ -9,6 +9,7 @@ import { PACKAGES, naira } from '@/lib/config';
 import { CATS, MASTER } from '@/lib/courses';
 import { supabase } from '@/lib/supabase';
 import PostCard from '@/components/PostCard';
+import Reviews from '@/components/Reviews';
 export const revalidate = 60;
 
 const WHY = [
@@ -21,6 +22,7 @@ const WHY = [
 ];
 
 export default async function Home() {
+  const { data: reviews } = await supabase.from('testimonials_public').select('*').order('created_at', { ascending: false }).limit(12);
   const { data: posts } = await supabase.from('posts').select('slug,title,excerpt,cover_url,youtube_url,category').eq('published', true).order('created_at', { ascending: false }).limit(3);
   return (<>
     <Nav /><Reveal />
@@ -60,6 +62,8 @@ export default async function Home() {
       <div className="cat"><h3 data-reveal>Specialised Masterclasses &amp; Training</h3><div className="cgrid">{MASTER.map(([x,ic],i)=>
         <div key={x} className="course mc glow" tabIndex={0} data-reveal={(i%4)*60}><span className="n"><Icon name={ic} size={20}/></span><div><b>{x}</b><small>Exclusive to VIP students.</small></div><span className="tag">VIP</span></div>)}</div></div>
     </div></section>
+
+    <Reviews items={reviews} />
 
     <section id="pricing"><div className="wrap center">
       <span className="eyebrow" data-reveal>Choose your pathway</span>

@@ -57,5 +57,9 @@ export async function POST(req) {
     if (error) return bad('Could not delete'); revalidatePath('/'); revalidatePath('/blog');
     return NextResponse.json({ ok: true });
   }
+  if (b.type === 'testimonial') {
+    const { error } = await supabase.rpc('admin_testimonial', { k, p_id: b.id, p_action: b.action });
+    if (error) return bad('Could not update'); revalidatePath('/'); return NextResponse.json({ ok: true });
+  }
   return bad('Unknown action');
 }
