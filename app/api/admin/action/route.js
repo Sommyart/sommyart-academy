@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase, getSettings, links } from '@/lib/supabase';
-import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL } from '@/lib/mail';
+import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob } from '@/lib/mail';
 import { revalidatePath } from 'next/cache';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 export const maxDuration = 300;
@@ -61,5 +61,32 @@ export async function POST(req) {
     const { error } = await supabase.rpc('admin_testimonial', { k, p_id: b.id, p_action: b.action });
     if (error) return bad('Could not update'); revalidatePath('/'); return NextResponse.json({ ok: true });
   }
+  if (b.type === 'student-update') {
+    const patch = {}; for (const key of ['badge', 'completed', 'certificate_url']) if (key in (b.patch || {})) patch[key] = b.patch[key];
+    const { data: before } = await supabase.rpc('admin_students', { k });
+    const old = (before || []).find(x => x.id === b.id);
+    const { data: st, error } = await supabase.rpc('admin_student_update', { k, p_id: b.id, p: patch });
+    if (error || !st) return bad('Could not update');
+    let emailed = false;
+    try {
+      if (patch.badge && patch.badge !== old?.badge) { await send(st.email, `You're now a ${patch.badge === 'vip' ? 'VIP' : 'Regular'} student 🎓`, tplBadge(st, patch.badge)); emailed = true; }
+      if (patch.certificate_url && patch.certificate_url !== old?.certificate_url) { await send(st.email, 'Your Sommyart Academy certificate is ready 🏆', tplCert(st, patch.certificate_url)); emailed = true; }
+    } catch {}
+    revalidatePath('/');
+    const { password_hash, otp_hash, ...safe } = st;
+    return NextResponse.json({ student: safe, emailed });
+  }
+  if (b.type === 'job-save') {
+    if (!b.job?.title) return bad('Title is required');
+    const { data: job, error } = await supabase.rpc('admin_save_job', { k, p: b.job });
+    if (error) return bad('Could not post');
+    let count = 0;
+    if (b.job.email && mailReady()) {
+      const { data: sts } = await supabase.rpc('admin_students', { k });
+      for (const s of (sts || []).filter(s => s.badge && (job.audience === 'all' || s.badge === 'vip'))) { try { await send(s.email, `New opportunity: ${job.title}`, tplJob(job)); count++; } catch {} await new Promise(r => setTimeout(r, 550)); }
+    }
+    return NextResponse.json({ job, count });
+  }
+  if (b.type === 'job-delete') { const { error } = await supabase.rpc('admin_delete_job', { k, p_id: b.id }); if (error) return bad('Could not delete'); return NextResponse.json({ ok: true }); }
   return bad('Unknown action');
 }

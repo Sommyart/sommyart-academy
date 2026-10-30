@@ -10,6 +10,7 @@ import { CATS, MASTER } from '@/lib/courses';
 import { supabase } from '@/lib/supabase';
 import PostCard from '@/components/PostCard';
 import Reviews from '@/components/Reviews';
+import HeroVideo from '@/components/HeroVideo';
 export const revalidate = 60;
 
 const WHY = [
@@ -36,11 +37,7 @@ export default async function Home() {
           <div className="ctas" data-reveal="300"><a className="btn btn-primary shine" href="#pricing">Choose your package <Icon name="ArrowRight" size={18}/></a><a className="btn btn-ghost" href="#courses">See all courses</a></div>
           <div className="chips" data-reveal="400">{['AI Art','AI Video','AI Music','Prompt Engineering','Automation','Web Dev','Digital Marketing'].map(c=><span key={c} className="chip">{c}</span>)}</div>
         </div>
-        <div className="mascots" data-reveal="200">
-          <img className="g float" src="/mascot-girl.webp" alt="Sommyart Academy mascot" />
-          <img className="b float d2" src="/mascot-boy.webp" alt="Sommyart Academy mascot" />
-          <span className="spark s1"><Icon name="Sparkles" /></span><span className="spark s2"><Icon name="Wand2" /></span><span className="spark s3"><Icon name="Zap" /></span>
-        </div>
+        <div data-reveal="200"><HeroVideo /></div>
       </div>
     </header>
 
