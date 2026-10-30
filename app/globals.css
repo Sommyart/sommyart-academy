@@ -275,3 +275,10 @@ section[id]{scroll-margin-top:110px}
 footer a{transition:color .2s}footer a:hover{color:#ff8be0}
 .tabs button:hover,.tabbtn:hover{border-color:var(--purple);color:var(--purple)}
 .tabs button.on:hover,.tabbtn.on:hover{color:#fff}
+
+@media(max-width:760px){
+ nav.top .wrap{flex-wrap:wrap;height:auto;padding-top:8px;padding-bottom:0}
+ nav.top .links{display:flex;order:3;width:100%;gap:22px;overflow-x:auto;padding:8px 2px 10px;scrollbar-width:none;font-size:14px}
+ nav.top .links::-webkit-scrollbar{display:none}
+ nav.top .links a{white-space:nowrap}
+}
