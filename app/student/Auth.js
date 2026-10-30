@@ -23,11 +23,11 @@ export default function Auth() {
         <p className="note">Can't find it? Check spam, or <a href="#" onClick={(e) => { e.preventDefault(); run(async () => { await call({ action: 'resend', email: f.email }); setNote('New code sent.'); }); }}>send a new code</a>.</p>
       </>) : (<>
         {mode === 'signup' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}><div><label>First name</label><input required {...set('first')} /></div><div><label>Last name</label><input required {...set('last')} /></div></div>}
-        <label>Email</label><input required type="email" {...set('email')} placeholder="Use the email you enrolled with" />
+        <label>Email</label><input required type="email" {...set('email')} placeholder={mode === 'signup' ? 'The exact email you paid with' : ''} />
         <label>Password</label><div style={{ position: 'relative' }}><input required type={show ? 'text' : 'password'} minLength={mode === 'signup' ? 8 : 1} {...set('password')} placeholder={mode === 'signup' ? 'At least 8 characters' : ''} /><button type="button" className="peek" onClick={() => setShow(!show)}>{show ? 'Hide' : 'Show'}</button></div>
       </>)}
       {err && <p className="err">{err}</p>}
       <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 18 }} disabled={busy}>{busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : mode === 'login' ? 'Log in' : 'Confirm & continue'}</button>
-      {mode !== 'otp' && <p className="note" style={{ textAlign: 'center' }}>Not a student yet? <a href="/#pricing">See packages</a></p>}
+      {mode === 'signup' && <p className="note" style={{ textAlign: 'center' }}>Only confirmed Sommyart students can create an account.</p>}
     </form></div>);
 }

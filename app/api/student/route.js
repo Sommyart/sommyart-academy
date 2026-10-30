@@ -7,7 +7,7 @@ import { ST_COOKIE } from '@/lib/student';
 import { send, tplOtp, tplNewStudent } from '@/lib/mail';
 const K = () => process.env.ADMIN_KEY;
 const err = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
-const setSession = (res, token) => res.cookies.set(ST_COOKIE, token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 60 });
+const setSession = (res, token) => { res.cookies.set(ST_COOKIE, token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 60 }); res.cookies.set('sa_sf', '1', { secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 365 }); };
 export async function POST(req) {
   const b = await req.json().catch(() => ({})); const a = b.action;
   const email = String(b.email || '').trim().toLowerCase();

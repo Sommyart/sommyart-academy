@@ -8,6 +8,6 @@ export default function Reviews({ items }) {
       <figcaption>{t.photo_url ? <img src={t.photo_url} alt="" /> : <span className="ini">{t.first_name[0]}{t.last_name[0]}</span>}
         <div><b>{t.first_name} {t.last_name}</b><span className={'sbadge ' + (t.package === 'vip' ? 'vip' : 'regular')}>{t.package === 'vip' ? '★ VIP Student' : 'Regular Student'}</span></div></figcaption>
     </figure>)}</div>
-    <p className="center" style={{ marginTop: 28 }}><a href="/student" className="note">Are you a Sommyart student? Share your experience →</a></p>
+    
   </div></section>);
 }
