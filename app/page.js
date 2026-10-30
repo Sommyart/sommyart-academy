@@ -49,7 +49,7 @@ export default async function Home() {
       <span className="eyebrow" data-reveal>Why Sommyart Academy</span>
       <h2 className="h2" data-reveal="80">Technology made simple. <span className="grad-text">Skills made profitable.</span></h2>
       <p className="sub" data-reveal="160">Our mission is to empower individuals, creatives, entrepreneurs and professionals to use AI for creativity, productivity, innovation and business growth.</p>
-      <div className="why" style={{textAlign:'left'}}>{WHY.map(([i,t,d],n)=><div key={t} className="card glow" data-reveal={n*70}><div className="ic"><Icon name={i} /></div><h3>{t}</h3><p>{d}</p></div>)}</div>
+      <div className="why" style={{textAlign:'left'}}>{WHY.map(([i,t,d],n)=><div key={t} className="card glow" tabIndex={0} data-reveal={n*70}><div className="ic"><Icon name={i} /></div><h3>{t}</h3><p>{d}</p></div>)}</div>
     </div></section>
 
     <section id="courses" className="courses-bg"><div className="wrap">
@@ -78,7 +78,7 @@ export default async function Home() {
 
     <section id="how" className="courses-bg"><div className="wrap center">
       <span className="eyebrow" data-reveal>How it works</span><h2 className="h2" data-reveal="80">From payment to classroom in 4 steps</h2>
-      <div className="steps" style={{textAlign:'left'}}>{[['Choose','Pick Regular or VIP.'],['Pay','Transfer to our account shown on the next page.'],['Upload','Upload your receipt. We email you to confirm we got it.'],['Learn','Once approved, your welcome email brings your Google Classroom link(s).']].map(([t,d],i)=><div key={t} className="step" data-reveal={i*90}><b>STEP {i+1}</b><h4>{t}</h4><p>{d}</p></div>)}</div>
+      <div className="steps" style={{textAlign:'left'}}>{[['Choose','Pick Regular or VIP.'],['Pay','Transfer to our account shown on the next page.'],['Upload','Upload your receipt. We email you to confirm we got it.'],['Learn','Once approved, your welcome email brings your Google Classroom link(s).']].map(([t,d],i)=><div key={t} className="step" tabIndex={0} data-reveal={i*90}><b>STEP {i+1}</b><h4>{t}</h4><p>{d}</p></div>)}</div>
     </div></section>
 
     {posts?.length > 0 && <section><div className="wrap">

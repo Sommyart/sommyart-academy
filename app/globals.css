@@ -259,3 +259,19 @@ nav.top .links a:hover:after{transform:scaleX(1)}
 nav.top .links a.active{color:var(--purple);font-weight:600}
 nav.top .links a.active:after{transform:scaleX(1)}
 section[id]{scroll-margin-top:110px}
+
+/* hover = soft tint, click/tap (focus) = strong brand state, click away = normal */
+.card,.course,.step,.review,.post,.stat,.plan.regular{transition:transform .25s,box-shadow .25s,border-color .25s,background .25s,color .25s;outline:none}
+.card:hover,.course:hover,.step:hover,.review:hover,.post:hover,.stat:hover,.plan.regular:hover{background:#F5F0FF;border-color:#C9B6F2}
+.card:hover h3,.course:hover b,.step:hover h4,.post:hover h3{color:var(--purple)}
+.card:focus,.course:focus,.step:focus,.review:focus,.post:focus{background:linear-gradient(135deg,#3B2B9B,#8B35D7);border-color:transparent;color:#fff;box-shadow:0 24px 40px -20px rgba(59,43,155,.7)}
+.card:focus h3,.card:focus p,.course:focus b,.course:focus small,.step:focus h4,.step:focus p,.step:focus b,.review:focus blockquote,.review:focus figcaption b,.post:focus h3,.post:focus p{color:#fff}
+.card:focus .ic{background:rgba(255,255,255,.2);color:#fff}
+.course:focus .n{background:#fff;color:var(--purple)}
+.review:focus .quote{-webkit-text-fill-color:#fff}
+.post:focus .pcat{background:rgba(255,255,255,.2);color:#fff}
+.chip{transition:background .2s,border-color .2s}.chip:hover{background:rgba(255,255,255,.25);border-color:#fff}
+.btn:active{transform:scale(.97)}
+footer a{transition:color .2s}footer a:hover{color:#ff8be0}
+.tabs button:hover,.tabbtn:hover{border-color:var(--purple);color:var(--purple)}
+.tabs button.on:hover,.tabbtn.on:hover{color:#fff}
