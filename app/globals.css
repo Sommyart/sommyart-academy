@@ -284,3 +284,4 @@ footer a{transition:color .2s}footer a:hover{color:#ff8be0}
 }
 .sbadge.schol{background:#E6F8EE;color:#11834a;margin-left:6px}
 .pill.schol{background:#E6F8EE;color:#11834a}
+.store-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:14px}
