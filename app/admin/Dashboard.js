@@ -20,7 +20,7 @@ export default function Dashboard({ rows: init, settings, mail, err, base }) {
     <div className="admin-top"><div className="wrap"><b>Sommyart Academy · Admin</b><span style={{display:'flex',gap:14}}><a href="/" style={{fontSize:14}}>View site</a><a href="/api/admin/login" style={{fontSize:14}}>Log out</a></span></div></div>
     <div className="wrap" style={{paddingBottom:60}}>
       {err && <div className="banner">{err}</div>}
-      {!mail && <div className="banner">Emails are off. Add <b>GMAIL_APP_PASSWORD</b> in Vercel to send emails from sommyartacademy@gmail.com.</div>}
+      {!mail && <div className="banner">Emails are off. Add <b>RESEND_API_KEY</b> (or GMAIL_APP_PASSWORD) in Vercel, then redeploy.</div>}
       {!s.account_number && <div className="banner">Add your bank details under Settings so students can pay.</div>}
       <div className="kpis">
         <div className="kpi"><b style={{color:'#b26a00'}}>{cnt('pending')}</b><span>Awaiting approval</span></div>
@@ -58,7 +58,7 @@ export default function Dashboard({ rows: init, settings, mail, err, base }) {
         <label>Subject</label><input required value={nl.subject} onChange={e=>setNl({...nl,subject:e.target.value})} placeholder="New course just dropped: AI Animation 2.0" />
         <label>Message</label><textarea required rows={8} value={nl.body} onChange={e=>setNl({...nl,body:e.target.value})} />
         <button className="btn btn-primary" style={{marginTop:18}} disabled={busy==='n'||!mail}>{busy==='n'?'Sending…':'Send newsletter'}</button>
-        <p className="note">Gmail allows about 500 emails per day.</p>
+        <p className="note">Sent from hello@sommyartacademy.site. Replies go to sommyartacademy@gmail.com.</p>
       </form>}
     </div></div>);
 }
