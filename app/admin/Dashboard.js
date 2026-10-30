@@ -1,10 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { naira } from '@/lib/config';
+import BlogTab from './BlogTab';
+import SubsTab from './SubsTab';
 const act = async (body) => { const r = await fetch('/api/admin/action', { method: 'POST', body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Failed'); return j; };
-export default function Dashboard({ rows: init, settings, mail, err, base }) {
+export default function Dashboard({ rows: init, subs, posts, settings, mail, err, base }) {
   const [rows, setRows] = useState(init); const [tab, setTab] = useState('pending'); const [busy, setBusy] = useState(''); const [msg, setMsg] = useState('');
-  const [s, setS] = useState(settings); const [nl, setNl] = useState({ subject: '', body: '', audience: 'vip' });
+  const [s, setS] = useState(settings); const [nl, setNl] = useState({ subject: '', body: '', audience: 'subscribers' });
   const cnt = (st) => rows.filter(r => r.status === st).length;
   const revenue = rows.filter(r => r.status === 'approved').reduce((a, r) => a + r.amount, 0);
   async function setStatus(r, type) {
@@ -28,7 +30,7 @@ export default function Dashboard({ rows: init, settings, mail, err, base }) {
         <div className="kpi"><b>{rows.filter(r=>r.status==='approved'&&r.package==='vip').length}</b><span>VIP students</span></div>
         <div className="kpi"><b>{naira(revenue)}</b><span>Confirmed revenue</span></div>
       </div>
-      <div className="tabs">{[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All'],['newsletter','Newsletter'],['settings','Settings']].map(([k,l])=><button key={k} className={tab===k?'on':''} onClick={()=>{setTab(k);setMsg('')}}>{l}{['pending','approved','rejected'].includes(k)?` (${cnt(k)})`:''}</button>)}</div>
+      <div className="tabs">{[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All'],['blog','Blog'],['subscribers','Subscribers'],['newsletter','Send email'],['settings','Settings']].map(([k,l])=><button key={k} className={tab===k?'on':''} onClick={()=>{setTab(k);setMsg('')}}>{l}{['pending','approved','rejected'].includes(k)?` (${cnt(k)})`:''}</button>)}</div>
       {msg && <p style={{margin:'0 0 14px',fontWeight:600}}>{msg}</p>}
       {['pending','approved','rejected','all'].includes(tab) && (list.length ? list.map(r => {
         const url = base + r.receipt_path; const pdf = r.receipt_path.endsWith('.pdf');
@@ -42,6 +44,8 @@ export default function Dashboard({ rows: init, settings, mail, err, base }) {
             {r.status === 'approved' && <button className="btn sm" style={{border:'1px solid #ddd'}} disabled={busy===r.id} onClick={()=>setStatus(r,'approve')}>Resend welcome</button>}
             {r.status === 'pending' && <button className="btn sm" style={{border:'1px solid #f2b8b8',color:'#c0262d'}} disabled={busy===r.id} onClick={()=>setStatus(r,'reject')}>Reject</button>}
           </div></div>; }) : <p style={{color:'#666'}}>Nothing here yet.</p>)}
+      {tab === 'blog' && <BlogTab posts={posts} setMsg={setMsg} />}
+      {tab === 'subscribers' && <SubsTab subs={subs} />}
       {tab === 'settings' && <form className="formcard" onSubmit={saveSettings} style={{maxWidth:640}}>
         <h3>Payment account</h3>
         <label>Bank name</label><input value={s.bank_name||''} onChange={e=>setS({...s,bank_name:e.target.value})} />
@@ -54,11 +58,11 @@ export default function Dashboard({ rows: init, settings, mail, err, base }) {
       </form>}
       {tab === 'newsletter' && <form className="formcard" onSubmit={sendNl} style={{maxWidth:640}}>
         <h3>Send a branded email</h3>
-        <label>Send to</label><select value={nl.audience} onChange={e=>setNl({...nl,audience:e.target.value})}><option value="vip">VIP students ({rows.filter(r=>r.status==='approved'&&r.package==='vip').length})</option><option value="all">All approved students ({cnt('approved')})</option><option value="pending">Pending (payment reminders) ({cnt('pending')})</option></select>
+        <label>Send to</label><select value={nl.audience} onChange={e=>setNl({...nl,audience:e.target.value})}><option value="subscribers">Whole mailing list ({subs.filter(s=>s.status==='active').length})</option><option value="vip">VIP students ({rows.filter(r=>r.status==='approved'&&r.package==='vip').length})</option><option value="all">All approved students ({cnt('approved')})</option><option value="pending">Pending (payment reminders) ({cnt('pending')})</option></select>
         <label>Subject</label><input required value={nl.subject} onChange={e=>setNl({...nl,subject:e.target.value})} placeholder="New course just dropped: AI Animation 2.0" />
         <label>Message</label><textarea required rows={8} value={nl.body} onChange={e=>setNl({...nl,body:e.target.value})} />
         <button className="btn btn-primary" style={{marginTop:18}} disabled={busy==='n'||!mail}>{busy==='n'?'Sending…':'Send newsletter'}</button>
-        <p className="note">Sent from hello@sommyartacademy.site. Replies go to sommyartacademy@gmail.com.</p>
+        <p className="note">Sent from hello@sommyartacademy.site with an unsubscribe link. Replies go to sommyartacademy@gmail.com. Links you paste become clickable.</p>
       </form>}
     </div></div>);
 }
