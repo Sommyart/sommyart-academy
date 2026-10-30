@@ -14,8 +14,8 @@ export async function POST(req) {
   if (a === 'signup') {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err('Enter a valid email.');
     if (!b.first || !b.last) return err('Enter your first name and surname.');
-    const { data, error } = await supabase.rpc('st_signup', { k: K(), p_email: email, p_pw: String(b.password || ''), p_first: String(b.first), p_last: String(b.last), p_gender: String(b.gender || ''), p_phone: String(b.phone || '') });
-    if (error) return err('Could not create account. Try again.'); if (data.error) return err(data.error);
+    const { data, error } = await supabase.rpc('st_signup', { k: K(), p_email: email, p_pw: String(b.password || ''), p_first: String(b.first), p_last: String(b.last), p_gender: String(b.gender || ''), p_phone: String(b.phone || ''), p_code: String(b.code || '') || null });
+    if (error) return err('Could not create account. Try again.'); if (data.need_code) return NextResponse.json({ need_code: true, error: data.error }, { status: 400 }); if (data.error) return err(data.error);
     try { await send(email, `${data.otp} is your Sommyart Academy code`, tplOtp(b.first, data.otp)); } catch { return err('Could not send the code email. Try again shortly.'); }
     return NextResponse.json({ ok: true });
   }
@@ -32,8 +32,9 @@ export async function POST(req) {
     const res = NextResponse.json({ ok: true }); setSession(res, data.token); return res;
   }
   if (a === 'login') {
-    const { data } = await supabase.rpc('st_login', { k: K(), p_email: email, p_pw: String(b.password || '') });
+    const { data } = await supabase.rpc('st_login', { k: K(), p_email: email, p_pw: String(b.password || ''), p_code: String(b.code || '') || null });
     if (!data) return err('Could not log in.');
+    if (data.need_code) return NextResponse.json({ need_code: true, error: data.error }, { status: 400 });
     if (data.unverified) { const r = await supabase.rpc('st_resend', { k: K(), p_email: email }); if (r.data?.otp) await send(email, `${r.data.otp} is your Sommyart Academy code`, tplOtp('there', r.data.otp)).catch(() => {}); return NextResponse.json({ unverified: true }); }
     if (data.error) return err(data.error);
     const res = NextResponse.json({ ok: true }); setSession(res, data.token); return res;

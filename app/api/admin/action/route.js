@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase, getSettings, links } from '@/lib/supabase';
-import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding } from '@/lib/mail';
+import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding, tplScholarCode } from '@/lib/mail';
 import { revalidatePath } from 'next/cache';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 export const maxDuration = 300;
@@ -69,6 +69,12 @@ export async function POST(req) {
     if (error || !row) return bad('Could not add student');
     let emailed = false;
     if (st.notify && mailReady()) { try { const s = await getSettings(); const ls = links(row.package === 'vip' ? s.vip_links : s.regular_links); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, ls)); await send(row.email, 'How to join your Google Classroom 🎓 (video guide)', tplOnboarding(row, ls)); emailed = true; } catch {} }
+    return NextResponse.json({ row, emailed });
+  }
+  if (b.type === 'scholarship') {
+    const { data: row, error } = await supabase.rpc('admin_set_scholarship', { k, p_email: b.email, p_on: !!b.on });
+    if (error || !row) return bad('Could not update (student needs an approved enrollment)');
+    let emailed = false; if (b.on && mailReady()) { try { await send(row.email, 'Your Sommyart Academy scholarship tracking code 🎓', tplScholarCode(row)); emailed = true; } catch {} }
     return NextResponse.json({ row, emailed });
   }
   if (b.type === 'student-update') {
