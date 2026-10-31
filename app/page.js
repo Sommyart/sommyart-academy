@@ -12,6 +12,7 @@ import PostCard from '@/components/PostCard';
 import Reviews from '@/components/Reviews';
 import HeroVideo from '@/components/HeroVideo';
 import Catalog from '@/components/Catalog';
+import { getCourses } from '@/lib/catalog';
 import Pricing from '@/components/Pricing';
 export const revalidate = 60;
 
@@ -25,6 +26,7 @@ const WHY = [
 ];
 
 export default async function Home() {
+  const courses = await getCourses();
   const { data: reviews } = await supabase.from('testimonials_public').select('*').order('created_at', { ascending: false }).limit(12);
   const { data: posts } = await supabase.from('posts').select('slug,title,excerpt,cover_url,youtube_url,category').eq('published', true).order('created_at', { ascending: false }).limit(3);
   return (<>
@@ -54,7 +56,7 @@ export default async function Home() {
       <div className="why" style={{textAlign:'left'}}>{WHY.map(([i,t,d],n)=><div key={t} className="card glow" tabIndex={0} data-reveal={n*70}><div className="ic"><Icon name={i} /></div><h3>{t}</h3><p>{d}</p></div>)}</div>
     </div></section>
 
-    <Catalog />
+    <Catalog courses={courses} />
 
     <Reviews items={reviews} />
 

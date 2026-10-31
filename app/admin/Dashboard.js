@@ -8,8 +8,9 @@ import StudentsTab from './StudentsTab';
 import JobsTab from './JobsTab';
 import ReferralsTab from './ReferralsTab';
 import AddStudent from './AddStudent';
+import CoursesTab from './CoursesTab';
 const act = async (body) => { const r = await fetch('/api/admin/action', { method: 'POST', body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Failed'); return j; };
-export default function Dashboard({ rows: init, subs, posts, reviews, students, jobs, refdata, settings, mail, err, base }) {
+export default function Dashboard({ rows: init, subs, posts, reviews, students, jobs, refdata, courses, settings, mail, err, base }) {
   const [rows, setRows] = useState(init); const [tab, setTab] = useState('pending'); const [busy, setBusy] = useState(''); const [msg, setMsg] = useState('');
   const [s, setS] = useState(settings); const [nl, setNl] = useState({ subject: '', body: '', audience: 'subscribers' });
   const cnt = (st) => rows.filter(r => r.status === st).length;
@@ -35,7 +36,7 @@ export default function Dashboard({ rows: init, subs, posts, reviews, students, 
         <div className="kpi"><b>{rows.filter(r=>r.status==='approved'&&r.package==='vip').length} <small style={{fontSize:14,color:'#11834a'}}>+ {rows.filter(r=>r.status==='approved'&&r.scholarship).length} 🎓</small></b><span>VIP students · scholarships</span></div>
         <div className="kpi"><b>{naira(revenue)}</b><span>Confirmed revenue</span></div>
       </div>
-      <div className="tabs">{[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All'],['students',`Students${students.filter(x=>x.verified&&!x.badge).length?' 🔔'+students.filter(x=>x.verified&&!x.badge).length:''}`],['referrals',`Referrals${refdata.payouts.filter(p=>p.status==='pending').length?' 💸'+refdata.payouts.filter(p=>p.status==='pending').length:''}`],['jobs','Jobs'],['blog','Blog'],['reviews','Reviews'],['subscribers','Subscribers'],['newsletter','Send email'],['settings','Settings']].map(([k,l])=><button key={k} className={tab===k?'on':''} onClick={()=>{setTab(k);setMsg('')}}>{l}{['pending','approved','rejected'].includes(k)?` (${cnt(k)})`:''}</button>)}</div>
+      <div className="tabs">{[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All'],['students',`Students${students.filter(x=>x.verified&&!x.badge).length?' 🔔'+students.filter(x=>x.verified&&!x.badge).length:''}`],['referrals',`Referrals${refdata.payouts.filter(p=>p.status==='pending').length?' 💸'+refdata.payouts.filter(p=>p.status==='pending').length:''}`],['jobs','Jobs'],['courses','Courses'],['blog','Blog'],['reviews','Reviews'],['subscribers','Subscribers'],['newsletter','Send email'],['settings','Settings']].map(([k,l])=><button key={k} className={tab===k?'on':''} onClick={()=>{setTab(k);setMsg('')}}>{l}{['pending','approved','rejected'].includes(k)?` (${cnt(k)})`:''}</button>)}</div>
       {msg && <p style={{margin:'0 0 14px',fontWeight:600}}>{msg}</p>}
       {['pending','approved','all'].includes(tab) && <AddStudent setMsg={setMsg} onAdded={(row)=>{setRows([row,...rows]);setTab('approved')}} />}
       {['pending','approved','rejected','all'].includes(tab) && (list.length ? list.map(r => {
@@ -57,6 +58,7 @@ export default function Dashboard({ rows: init, subs, posts, reviews, students, 
       {tab === 'students' && <StudentsTab students={students} setMsg={setMsg} />}
       {tab === 'referrals' && <ReferralsTab data={refdata} setMsg={setMsg} />}
       {tab === 'jobs' && <JobsTab jobs={jobs} setMsg={setMsg} />}
+      {tab === 'courses' && <CoursesTab courses={courses} setMsg={setMsg} />}
       {tab === 'reviews' && <ReviewsTab items={reviews} setMsg={setMsg} />}
       {tab === 'settings' && <form className="formcard" onSubmit={saveSettings} style={{maxWidth:640}}>
         <h3>Payment account</h3>

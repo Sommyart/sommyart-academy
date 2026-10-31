@@ -77,6 +77,12 @@ export async function POST(req) {
     let emailed = false; if (b.on && mailReady()) { try { await send(row.email, 'Your Sommyart Academy scholarship tracking code 🎓', tplScholarCode(row)); emailed = true; } catch {} }
     return NextResponse.json({ row, emailed });
   }
+  if (b.type === 'course-save') {
+    const { data: course, error } = await supabase.rpc('admin_save_course', { k, p: b.course || {} });
+    if (error || !course) return bad('Could not save course');
+    revalidatePath('/'); revalidatePath('/courses'); revalidatePath('/courses/' + course.slug);
+    return NextResponse.json({ course });
+  }
   if (b.type === 'student-update') {
     const patch = {}; for (const key of ['badge', 'completed', 'certificate_url']) if (key in (b.patch || {})) patch[key] = b.patch[key];
     const { data: before } = await supabase.rpc('admin_students', { k });

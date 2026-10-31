@@ -13,5 +13,6 @@ export default async function Admin() {
   const [{ data: subs }, { data: posts }, { data: reviews }] = await Promise.all([supabase.rpc('admin_subscribers', { k: ADMIN_KEY() }), supabase.rpc('admin_posts', { k: ADMIN_KEY() }), supabase.rpc('admin_testimonials', { k: ADMIN_KEY() })]);
   const [{ data: students }, { data: jobs }] = await Promise.all([supabase.rpc('admin_students', { k: ADMIN_KEY() }), supabase.rpc('admin_jobs', { k: ADMIN_KEY() })]);
   const { data: refdata } = await supabase.rpc('admin_referrers', { k: ADMIN_KEY() });
-  return <Dashboard rows={data || []} subs={subs || []} posts={posts || []} reviews={reviews || []} students={students || []} jobs={jobs || []} refdata={refdata || { referrers: [], payouts: [] }} settings={settings} mail={mailReady()} err={error ? 'Database key not configured (ADMIN_KEY).' : ''} base={`${SUPABASE_URL}/storage/v1/object/public/receipts/`} />;
+  const { data: courses } = await supabase.rpc('admin_courses', { k: ADMIN_KEY() });
+  return <Dashboard rows={data || []} subs={subs || []} posts={posts || []} reviews={reviews || []} students={students || []} jobs={jobs || []} refdata={refdata || { referrers: [], payouts: [] }} courses={courses || []} settings={settings} mail={mailReady()} err={error ? 'Database key not configured (ADMIN_KEY).' : ''} base={`${SUPABASE_URL}/storage/v1/object/public/receipts/`} />;
 }
