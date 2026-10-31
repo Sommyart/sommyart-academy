@@ -285,3 +285,10 @@ footer a{transition:color .2s}footer a:hover{color:#ff8be0}
 .sbadge.schol{background:#E6F8EE;color:#11834a;margin-left:6px}
 .pill.schol{background:#E6F8EE;color:#11834a}
 .store-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin-bottom:14px}
+
+.stepper{list-style:none;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:28px 20px 0;margin:0 auto;max-width:1140px}
+.stepper li{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#666;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 6px}
+.stepper li span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:#eee;color:#555}
+.stepper li.done span{background:#11834a;color:#fff}.stepper li.now span{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff}
+.assure{display:grid;gap:10px;margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;font-size:14px;color:#444}
+.cat-open .course small{max-height:none;opacity:1;margin-top:4px}

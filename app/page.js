@@ -11,6 +11,8 @@ import { supabase } from '@/lib/supabase';
 import PostCard from '@/components/PostCard';
 import Reviews from '@/components/Reviews';
 import HeroVideo from '@/components/HeroVideo';
+import Catalog from '@/components/Catalog';
+import Pricing from '@/components/Pricing';
 export const revalidate = 60;
 
 const WHY = [
@@ -42,7 +44,7 @@ export default async function Home() {
     </header>
 
     <div className="wrap stats">
-      {[[17,'+','Core courses'],[8,'','Specialised masterclasses'],[3,'','Learning tracks'],[100,'%','Practical projects']].map(([b,suf,s],i)=><div key={s} className="stat" data-reveal={i*90}><b className="grad-text" data-count={b} data-suffix={suf}>0{suf}</b><span>{s}</span></div>)}
+      {[[17,'+','Core courses'],[8,'','Specialised masterclasses'],[3,'','Learning tracks'],[100,'%','Practical projects']].map(([b,suf,s],i)=><div key={s} className="stat" data-reveal={i*90}><b className="grad-text" data-count={b} data-suffix={suf}>{b}{suf}</b><span>{s}</span></div>)}
     </div>
 
     <section id="why"><div className="wrap center">
@@ -52,29 +54,11 @@ export default async function Home() {
       <div className="why" style={{textAlign:'left'}}>{WHY.map(([i,t,d],n)=><div key={t} className="card glow" tabIndex={0} data-reveal={n*70}><div className="ic"><Icon name={i} /></div><h3>{t}</h3><p>{d}</p></div>)}</div>
     </div></section>
 
-    <section id="courses" className="courses-bg"><div className="wrap">
-      <div className="center"><span className="eyebrow" data-reveal>What you will learn</span><h2 className="h2" data-reveal="80">One academy. <span className="grad-text">Every skill you need.</span></h2><p className="sub" data-reveal="160">Hover or tap a course to see what it covers. Both packages unlock all core courses, and VIP adds the masterclasses.</p></div>
-      {CATS.map(c=><div key={c.name} className="cat"><h3 data-reveal>{c.name}</h3><div className="cgrid">{c.items.map(([x,ic,d],i)=>
-        <div key={x} className="course glow" tabIndex={0} data-reveal={(i%4)*60}><span className="n"><Icon name={ic} size={20}/></span><div><b>{x}</b><small>{d}</small></div></div>)}</div></div>)}
-      <div className="cat"><h3 data-reveal>Specialised Masterclasses &amp; Training</h3><div className="cgrid">{MASTER.map(([x,ic],i)=>
-        <div key={x} className="course mc glow" tabIndex={0} data-reveal={(i%4)*60}><span className="n"><Icon name={ic} size={20}/></span><div><b>{x}</b><small>Exclusive to VIP students.</small></div><span className="tag">VIP</span></div>)}</div></div>
-    </div></section>
+    <Catalog />
 
     <Reviews items={reviews} />
 
-    <section id="pricing"><div className="wrap center">
-      <span className="eyebrow" data-reveal>Choose your pathway</span>
-      <h2 className="h2" data-reveal="80">Simple pricing. <span className="grad-text">Lifetime value.</span></h2>
-      <p className="sub" data-reveal="160">Pay once by bank transfer, upload your receipt, and get your classroom access by email once we confirm it.</p>
-      <div className="plans" style={{textAlign:'left'}}>
-        {['regular','vip'].map((k,i)=>{const p=PACKAGES[k];return <div key={k} className={'plan '+k} data-reveal={i*120}>
-          {k==='vip'&&<span className="badge">MOST VALUE</span>}
-          <h3>{p.name}</h3><div className="price">{naira(p.price)}</div><div className="once">One-time payment</div>
-          <ul>{p.perks.map(x=><li key={x}>{x}</li>)}</ul>
-          <a className={'btn '+(k==='vip'?'btn-primary shine':'btn-dark')} href={`/enroll/${k}`}>Choose {k==='vip'?'VIP':'Regular'} <Icon name="ArrowRight" size={18}/></a>
-        </div>})}
-      </div>
-    </div></section>
+    <Pricing />
 
     <section id="how" className="courses-bg"><div className="wrap center">
       <span className="eyebrow" data-reveal>How it works</span><h2 className="h2" data-reveal="80">From payment to classroom in 4 steps</h2>

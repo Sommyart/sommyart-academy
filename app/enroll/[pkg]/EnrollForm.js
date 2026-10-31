@@ -25,9 +25,10 @@ export default function EnrollForm({ pkg, bank, refCode }) {
       r.push(`/thank-you?pkg=${pkg}&name=${encodeURIComponent(f.first)}`);
     } catch (x) { setErr(x.message); setBusy(false); }
   }
-  return (<div className="grid2">
+  return (<><ol className="stepper">{[['Choose package', true], ['Transfer payment', false], ['Upload receipt', false]].map(([t, done], i) => <li key={t} className={done ? 'done' : 'now'}><span>{done ? '✓' : i + 1}</span>{t}</li>)}</ol>
+  <div className="grid2" style={{ paddingTop: 10 }}>
     <div>
-      <span className="eyebrow">Step 2 of 3 · Make payment</span>
+      <span className="eyebrow">Step 2 · Transfer payment</span>
       <h1 className="h2" style={{fontSize:34}}>You chose the <span className="grad-text">{p.name}</span></h1>
       <p className="sub">Transfer exactly <b>{naira(p.price)}</b> to the account below, then upload your receipt.</p>
       <div className="bank">
@@ -39,10 +40,11 @@ export default function EnrollForm({ pkg, bank, refCode }) {
         </>) : <p>Account details are being updated. Please chat with us on WhatsApp for payment details.</p>}
       </div>
       <ul style={{marginTop:20,paddingLeft:18,color:'#555',fontSize:15}}>{p.perks.map(x=><li key={x}>{x}</li>)}</ul>
+      <div className="assure"><div>⏱️ <b>Fast confirmation.</b> We check receipts and send your classroom access by email, usually within a few hours.</div><div>📩 <b>Instant receipt notice.</b> You'll get an email as soon as we receive your upload.</div><div>💬 <b>Need help paying?</b> <a href="https://wa.me/2349134559428" target="_blank" rel="noreferrer">Chat with us on WhatsApp</a> (+234 913 455 9428).</div></div>
       <p className="note"><a href={pkg==='vip'?'/enroll/regular':'/enroll/vip'}>Switch to {pkg==='vip'?'Regular':'VIP'} package</a></p>
     </div>
     <form className="formcard" onSubmit={submit}>
-      <span className="eyebrow">Step 3 of 3 · Upload receipt</span>
+      <span className="eyebrow">Step 3 · After paying, upload your receipt</span>
       <h2 style={{fontSize:22}}>Your details</h2>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div><label>First name</label><input required value={f.first} onChange={e=>setF({...f,first:e.target.value})} placeholder="e.g. Chiamaka" /></div><div><label>Surname</label><input required value={f.surname} onChange={e=>setF({...f,surname:e.target.value})} placeholder="e.g. Okafor" /></div></div>
       <label>Email address (for your Google Classroom access)</label><input required type="email" value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="you@gmail.com" />
@@ -59,5 +61,5 @@ export default function EnrollForm({ pkg, bank, refCode }) {
       <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',marginTop:20}} disabled={busy}>{busy ? 'Submitting…' : 'Submit payment'}</button>
       <p className="note">Use a Gmail address if you can, since Google Classroom works best with Google accounts.</p>
     </form>
-  </div>);
+  </div></>);
 }

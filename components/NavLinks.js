@@ -15,6 +15,6 @@ export default function NavLinks() {
     pick(); window.addEventListener('scroll', pick, { passive: true }); window.addEventListener('hashchange', pick);
     return () => { window.removeEventListener('scroll', pick); window.removeEventListener('hashchange', pick); };
   }, [path]);
-  const active = ([href, , id]) => id ? (path === '/' && sec === id) : (path === href || path.startsWith(href + '/'));
+  const active = ([href, , id]) => id ? ((path === '/' && sec === id) || path === '/' + id) : (path === href || path.startsWith(href + '/'));
   return (<div className="links">{LINKS.map(l => <a key={l[0]} href={l[0]} className={active(l) ? 'active' : ''} aria-current={active(l) ? 'page' : undefined} onClick={(e) => { if (l[2] && path === '/') { if (l[2] === 'home') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); history.replaceState(null, '', '/'); } setSec(l[2]); } }}>{l[1]}</a>)}</div>);
 }
