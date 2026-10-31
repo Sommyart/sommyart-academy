@@ -241,7 +241,13 @@ input:focus,textarea:focus{outline:none;border-color:var(--blue)}
 .earn-chips b{display:block;font-size:22px}.earn-chips span{font-size:13px;opacity:.85}
 .kpi.bal{background:linear-gradient(135deg,#3B2B9B,#8B35D7);color:#fff;border:0}.kpi.bal span{color:rgba(255,255,255,.85)}
 .reflink{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.reflink code{flex:1 1 260px;background:var(--soft);border:1px dashed #c9c9e8;border-radius:12px;padding:12px 14px;font-size:15px;word-break:break-all}
-.refbar{display:block;text-align:center;font-size:14px;font-weight:600;color:#fff;text-decoration:none;padding:8px 12px;background:linear-gradient(90deg,var(--indigo),var(--purple),var(--magenta))}
+.refbar{display:block;overflow:hidden;white-space:nowrap;font-size:14px;font-weight:600;color:#fff;text-decoration:none;padding:8px 0;background:linear-gradient(90deg,var(--indigo),var(--purple),var(--magenta))}
+.refbar-track{display:flex;width:max-content;animation:refscroll 45s linear infinite}
+.refbar:hover .refbar-track{animation-play-state:paused}
+.refbar-set{display:flex;flex-shrink:0}
+.refbar-set span{padding:0 18px}.refbar-set .dot{padding:0;opacity:.7}
+@keyframes refscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.refbar-track{animation:none}}
 .refbar b{color:#FFD9A0}
 @media print{.noprint{display:none}}
 .guide{display:grid;grid-template-columns:340px 1fr;gap:40px;padding:50px 20px;align-items:start}
