@@ -24,7 +24,7 @@ export default function StudentsTab({ students: init, setMsg }) {
     </div>
     {shown.length ? shown.map(s => <div key={s.id} className="row-card" style={{ gridTemplateColumns: '60px 1fr auto' }}>
       {s.photo_url ? <img src={s.photo_url} alt="" style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover' }} /> : <span className="thumb" style={{ width: 60, height: 60, borderRadius: '50%' }}>{s.first_name[0]}{s.last_name[0]}</span>}
-      <div><b>{s.first_name} {s.last_name}</b> {s.badge ? <span className={'pill ' + s.badge}>{s.badge.toUpperCase()}</span> : s.verified ? <span className="pill pending">needs badge</span> : <span className="pill rejected">email not confirmed</span>} {s.scholarship && <span className="pill schol">🎓 Scholarship</span>} {s.completed && <span className="pill approved">completed</span>}
+      <div><b>{s.first_name} {s.last_name}</b> {s.badge ? <span className={'pill ' + s.badge}>{s.badge.toUpperCase()}</span> : s.verified ? <span className="pill pending">needs badge</span> : <span className="pill rejected">email not confirmed</span>} {s.scholarship && <span className="pill schol">🎓 Scholarship</span>} {s.bootcamp && <span className="pill boot">🏕️ Bootcamp</span>} {s.completed && <span className="pill approved">completed</span>}
         <div style={{ fontSize: 13, color: '#555' }}>{s.email}{s.phone ? ' · ' + s.phone : ''}{s.gender ? ' · ' + s.gender : ''} · joined {new Date(s.created_at).toLocaleDateString('en-NG')}{s.paid ? <> · <b style={{ color: '#11834a' }}>paid {s.paid.toUpperCase()}</b></> : ' · no matching payment found'}</div>
         {s.certificate_url && <a href={s.certificate_url} target="_blank" rel="noreferrer" style={{ fontSize: 13 }}>View certificate</a>}</div>
       <div className="acts">

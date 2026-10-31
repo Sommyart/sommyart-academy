@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { SUPABASE_URL } from '@/lib/config';
 import { ST_COOKIE } from '@/lib/student';
-import { send, tplOtp, tplNewStudent } from '@/lib/mail';
+import { send, tplOtp, tplNewStudent, tplReset } from '@/lib/mail';
 const K = () => process.env.ADMIN_KEY;
 const err = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 const setSession = (res, token) => { res.cookies.set(ST_COOKIE, token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 60 }); res.cookies.set('sa_sf', '1', { secure: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 365 }); };
@@ -30,6 +30,17 @@ export async function POST(req) {
     if (!data || data.error) return err(data?.error || 'Could not verify.');
     await send(process.env.ADMIN_EMAIL || 'josiahbenmoshe@gmail.com', `🎓 New student account: ${data.first} ${data.last}`, tplNewStudent(data)).catch(() => {});
     const res = NextResponse.json({ ok: true }); setSession(res, data.token); return res;
+  }
+  if (a === 'forgot') {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err('Enter a valid email.');
+    const { data } = await supabase.rpc('st_forgot', { k: K(), p_email: email });
+    if (data?.otp) await send(email, `${data.otp} is your Sommyart password reset code`, tplReset(data.first, data.otp)).catch(() => {});
+    return NextResponse.json({ ok: true }); // same answer whether or not the account exists
+  }
+  if (a === 'reset') {
+    const { data } = await supabase.rpc('st_reset', { k: K(), p_email: email, p_otp: String(b.otp || ''), p_pw: String(b.password || '') });
+    if (!data || data.error) return err(data?.error || 'Could not reset password.');
+    return NextResponse.json({ ok: true });
   }
   if (a === 'login') {
     const { data } = await supabase.rpc('st_login', { k: K(), p_email: email, p_pw: String(b.password || ''), p_code: String(b.code || '') || null });

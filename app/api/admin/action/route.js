@@ -68,8 +68,13 @@ export async function POST(req) {
     const { data: row, error } = await supabase.rpc('admin_add_student', { k, p: st });
     if (error || !row) return bad('Could not add student');
     let emailed = false;
-    if (st.notify && mailReady()) { try { const s = await getSettings(); const ls = links(row.package === 'vip' ? s.vip_links : s.regular_links); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, ls)); await send(row.email, 'How to join your Google Classroom 🎓 (video guide)', tplOnboarding(row, ls)); emailed = true; } catch {} }
+    if (st.notify && mailReady()) { try { const s = await getSettings(); const ls = links(row.package === 'vip' ? s.vip_links : s.regular_links); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, ls)); emailed = true; } catch {} }
     return NextResponse.json({ row, emailed });
+  }
+  if (b.type === 'bootcamp') {
+    const { data: row, error } = await supabase.rpc('admin_set_bootcamp', { k, p_email: b.email, p_on: !!b.on });
+    if (error || !row) return bad('Could not update (student needs an approved enrollment)');
+    return NextResponse.json({ row });
   }
   if (b.type === 'scholarship') {
     const { data: row, error } = await supabase.rpc('admin_set_scholarship', { k, p_email: b.email, p_on: !!b.on });
