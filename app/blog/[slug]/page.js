@@ -33,7 +33,8 @@ export default async function Post({ params }) {
       {yt && p.video_url && <video className="vid-file" src={p.video_url} controls playsInline />}
       <div className="prose" dangerouslySetInnerHTML={{ __html: render(p.body) }} />
       {yt && <p><a className="btn btn-dark sm" href={`https://www.youtube.com/watch?v=${yt}`} target="_blank" rel="noreferrer"><Icon name="Youtube" size={18}/> Watch on YouTube</a></p>}
-      <div className="cta-band" style={{marginTop:40,padding:34}}><h2 style={{fontSize:24}}>Want to master this properly? Join Sommyart Academy.</h2><a className="btn" style={{background:'#fff',color:'#3B2B9B'}} href="/#pricing">See packages <Icon name="ArrowRight" size={18}/></a></div>
+      <div className="reg-cta"><div><span className="eyebrow" style={{ color: '#ff8be0' }}>Start learning today</span><h2>Turn what you just read into a real skill.</h2><p>Register with Sommyart Academy: practical classes, Google Classroom access, and a community that helps you create and earn.</p></div>
+        <div className="reg-btns"><a className="btn btn-primary shine" href="/enroll/regular">Register · Regular ₦30,000</a><a className="btn" style={{ background: '#fff', color: '#3B2B9B' }} href="/enroll/vip">Register · VIP ₦50,000</a><a href="/courses" style={{ color: '#fff', fontSize: 14, opacity: .85 }}>Browse all courses →</a></div></div>
       <div className="formcard" style={{marginTop:24}}><h3>Get more free tutorials</h3><p className="note" style={{marginBottom:12}}>Join the newsletter. Unsubscribe anytime.</p><Newsletter source="article" /></div>
     </article><Footer /><Chat /></div>);
 }

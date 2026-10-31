@@ -313,3 +313,4 @@ a.course{text-decoration:none;color:inherit;cursor:pointer}
 .cd-side{position:sticky;top:100px;display:grid;gap:12px}
 @media(max-width:860px){.cd{grid-template-columns:1fr}.cd-side{position:static}.cd-head{flex-direction:column}}
 .cd section{padding:0}
+.reg-cta{margin-top:40px;border-radius:24px;padding:32px;color:#fff;background:linear-gradient(120deg,#1b1450,#3B2B9B 55%,#E71AA8);display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:center}.reg-cta h2{font-size:26px;line-height:1.2;margin:4px 0 8px}.reg-cta p{opacity:.9}.reg-btns{display:grid;gap:10px;justify-items:stretch;text-align:center}.reg-btns .btn{justify-content:center}@media(max-width:760px){.reg-cta{grid-template-columns:1fr;padding:24px}}
