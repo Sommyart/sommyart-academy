@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-const LINKS = [['/', 'Home', 'home'], ['/#courses', 'Courses', 'courses'], ['/#pricing', 'Pricing', 'pricing'], ['/blog', 'Blog'], ['/refer', 'Refer & Earn'], ['/#newsletter', 'Newsletter', 'newsletter']];
+const LINKS = [['/courses', 'Courses'], ['/#pricing', 'Pricing', 'pricing'], ['/blog', 'Blog'], ['/refer', 'Refer & Earn']];
 export default function NavLinks() {
   const path = usePathname(); const [sec, setSec] = useState('');
   useEffect(() => {

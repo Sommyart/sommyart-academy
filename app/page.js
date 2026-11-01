@@ -1,88 +1,79 @@
+import Link from 'next/link';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import Chat from '@/components/Chat';
 import Reveal from '@/components/Reveal';
-import Rotator from '@/components/Rotator';
 import Newsletter from '@/components/Newsletter';
 import Icon from '@/components/Icon';
-import { PACKAGES, naira } from '@/lib/config';
-import { CATS, MASTER } from '@/lib/courses';
 import { supabase } from '@/lib/supabase';
-import PostCard from '@/components/PostCard';
 import Reviews from '@/components/Reviews';
 import HeroVideo from '@/components/HeroVideo';
-import Catalog from '@/components/Catalog';
-import { getCourses } from '@/lib/catalog';
 import Pricing from '@/components/Pricing';
 export const revalidate = 60;
 
-const WHY = [
-  ['Target','Practical, not theory','Every lesson ends with something you can build, post or sell. Real tools, real projects.'],
-  ['Rocket','Future-ready skills','AI, automation and digital creativity: the skills businesses are paying for right now.'],
-  ['Puzzle','Simple to follow','We simplify technology so beginners, creatives and professionals can all keep up.'],
-  ['Briefcase','Built to help you earn','Turn your new skills into content, clients, products and income.'],
-  ['BookOpen','Learn at your pace','Structured Google Classrooms with videos, PDFs and assignments you can revisit anytime.'],
-  ['Users','Real support','A community and instructor who actually answer your questions on WhatsApp and in class.'],
+const POPULAR = [
+  ['Clapperboard', 'AI video and animation', 'Create videos brands pay for.'],
+  ['Workflow', 'AI automation', 'Build workflows that save hours.'],
+  ['MonitorSmartphone', 'Web design with AI', 'Ship sites without writing code.'],
+];
+const WHO = [
+  ['Beginners', 'Start from zero with clear, step-by-step lessons.'],
+  ['Creatives', 'Add AI to your craft and take on bigger projects.'],
+  ['Business owners', 'Save time and grow your brand with AI tools.'],
+];
+const HOW = [
+  ['Choose a package', 'Pick Regular or VIP.'],
+  ['Pay securely', 'Pay by card or bank transfer. We confirm it fast.'],
+  ['Start learning', 'Your Google Classroom access arrives by email.'],
 ];
 
 export default async function Home() {
-  const courses = await getCourses();
-  const { data: reviews } = await supabase.from('testimonials_public').select('*').order('created_at', { ascending: false }).limit(12);
-  const { data: posts } = await supabase.from('posts').select('slug,title,excerpt,cover_url,youtube_url,category').eq('published', true).order('created_at', { ascending: false }).limit(3);
+  const { data: reviews } = await supabase.from('testimonials_public').select('*').order('created_at', { ascending: false }).limit(6);
   return (<>
     <Nav /><Reveal />
-    <header className="hero">
-      <div className="blob b1" /><div className="blob b2" /><div className="blob b3" />
+    <header className="hero v2">
       <div className="wrap">
         <div>
-          <span className="eyebrow" style={{color:'#ff8be0'}} data-reveal>Welcome to Sommyart Academy</span>
-          <h1 data-reveal="100">Master AI and digital skills that help you <br/><Rotator /></h1>
-          <p className="lead" data-reveal="200">We make technology accessible. Learn AI art, video, music, prompt engineering, automation, web development and digital marketing through practical, step-by-step classes.</p>
-          <div className="ctas" data-reveal="300"><a className="btn btn-primary shine" href="#pricing">Choose your package <Icon name="ArrowRight" size={18}/></a><a className="btn btn-ghost" href="#courses">See all courses</a></div>
-          <div className="chips" data-reveal="400">{['AI Art','AI Video','AI Music','Prompt Engineering','Automation','Web Dev','Digital Marketing'].map(c=><span key={c} className="chip">{c}</span>)}</div>
+          <span className="label">PRACTICAL AI TRAINING</span>
+          <h1>From AI creator to AI entrepreneur.</h1>
+          <p className="lead">Practical AI training that pays for itself. Real projects, step-by-step classes you take at your own pace, and a certificate on completion.</p>
+          <div className="ctas"><Link prefetch className="btn btn-primary" href="/#pricing">Enroll now</Link><Link className="btn btn-outline-light" href="/courses">View courses</Link></div>
         </div>
-        <div data-reveal="200"><HeroVideo /></div>
+        <div><HeroVideo /></div>
       </div>
     </header>
 
-    <div className="wrap stats">
-      {[[17,'+','Core courses'],[8,'','Specialised masterclasses'],[3,'','Learning tracks'],[100,'%','Practical projects']].map(([b,suf,s],i)=><div key={s} className="stat" data-reveal={i*90}><b className="grad-text" data-count={b} data-suffix={suf}>{b}{suf}</b><span>{s}</span></div>)}
-    </div>
-
-    <section id="why"><div className="wrap center">
-      <span className="eyebrow" data-reveal>Why Sommyart Academy</span>
-      <h2 className="h2" data-reveal="80">Technology made simple. <span className="grad-text">Skills made profitable.</span></h2>
-      <p className="sub" data-reveal="160">Our mission is to empower individuals, creatives, entrepreneurs and professionals to use AI for creativity, productivity, innovation and business growth.</p>
-      <div className="why" style={{textAlign:'left'}}>{WHY.map(([i,t,d],n)=><div key={t} className="card glow" tabIndex={0} data-reveal={n*70}><div className="ic"><Icon name={i} /></div><h3>{t}</h3><p>{d}</p></div>)}</div>
+    <section id="courses"><div className="wrap center">
+      <h2 className="h2" data-reveal>Popular courses</h2>
+      <p className="sub" data-reveal="80">Start with the skills people are paying for.</p>
+      <div className="cards3">{POPULAR.map(([ic, t, d], i) => <div key={t} className="tcard" data-reveal={i * 80}><div className="ic"><Icon name={ic} size={22} /></div><h3>{t}</h3><p>{d}</p></div>)}</div>
+      <Link className="tlink" href="/courses">View all courses →</Link>
     </div></section>
 
-    <Catalog courses={courses} />
+    <section className="tint"><div className="wrap center">
+      <h2 className="h2" data-reveal>Who it's for</h2>
+      <div className="who">{WHO.map(([t, d]) => <div key={t}><b>{t}</b><span>{d}</span></div>)}</div>
+    </div></section>
 
     <Reviews items={reviews} />
 
-    <Pricing />
-
-    <section id="how" className="courses-bg"><div className="wrap center">
-      <span className="eyebrow" data-reveal>How it works</span><h2 className="h2" data-reveal="80">From payment to classroom in 4 steps</h2>
-      <div className="steps" style={{textAlign:'left'}}>{[['Choose','Pick Regular or VIP.'],['Pay','Transfer to our account shown on the next page.'],['Upload','Upload your receipt. We email you to confirm we got it.'],['Learn','Once approved, your welcome email brings your Google Classroom link(s).']].map(([t,d],i)=><div key={t} className="step" tabIndex={0} data-reveal={i*90}><b>STEP {i+1}</b><h4>{t}</h4><p>{d}</p></div>)}</div>
+    <section id="how"><div className="wrap center">
+      <h2 className="h2" data-reveal>How it works</h2>
+      <div className="how3">{HOW.map(([t, d], i) => <div key={t}><i>{i + 1}</i><b>{t}</b><span>{d}</span></div>)}</div>
     </div></section>
 
-    {posts?.length > 0 && <section><div className="wrap">
-      <div className="center"><span className="eyebrow" data-reveal>Free resources</span><h2 className="h2" data-reveal="80">From the <span className="grad-text">Sommyart blog</span></h2></div>
-      <div className="posts">{posts.map((p,i)=><PostCard key={p.slug} p={p} i={i} />)}</div>
-      <p className="center" style={{marginTop:30}}><a className="btn btn-dark" href="/blog">See all articles</a></p>
-    </div></section>}
+    <Pricing />
 
-    <section id="newsletter"><div className="wrap"><div className="nl-band" data-reveal>
-      <img src="/mascot-girl.webp" alt="" className="nl-mascot float" />
-      <div><h2>Get free AI tips in your inbox</h2><p>Tutorials, prompts, new course launches and student-only offers. No spam, unsubscribe anytime.</p><Newsletter source="homepage" dark /></div>
-    </div></div></section>
+    <section className="final"><div className="wrap">
+      <h2>Your next skill could be your next income. Start today.</h2>
+      <Link prefetch className="btn btn-primary" href="/#pricing">Enroll now <Icon name="ArrowRight" size={18} /></Link>
+    </div></section>
 
-    <section style={{paddingTop:0}}><div className="wrap"><div className="cta-band" data-reveal>
-      <h2>Your future in tech starts with one decision. Make it today.</h2>
-      <a className="btn" style={{background:'#fff',color:'#3B2B9B'}} href="#pricing">Enroll now <Icon name="ArrowRight" size={18}/></a>
-    </div></div></section>
+    <section id="newsletter" style={{ paddingTop: 72, paddingBottom: 72 }}><div className="wrap nl-mini">
+      <h2 className="h2" style={{ fontSize: 26 }}>Free AI tips in your inbox</h2>
+      <p className="sub" style={{ marginBottom: 18 }}>Tutorials, prompts and new course launches. No spam.</p>
+      <Newsletter source="homepage" />
+    </div></section>
     <Footer /><Chat />
   </>);
 }
-

@@ -13,7 +13,7 @@ export default function Pricing() {
           {k==='vip'&&<span className="badge">MOST VALUE</span>}
           <h3>{p.name}</h3><div className="price">{naira(p.price)}</div><div className="once">One-time payment</div>
           <ul>{p.perks.map(x=><li key={x}>{x}</li>)}</ul>
-          <Link prefetch className={'btn '+(k==='vip'?'btn-primary shine':'btn-dark')} href={`/enroll/${k}`}>Choose {k==='vip'?'VIP':'Regular'} <Icon name="ArrowRight" size={18}/></Link>
+          <Link prefetch className="btn btn-primary" href={`/enroll/${k}`}>Choose {k==='vip'?'VIP':'Regular'} <Icon name="ArrowRight" size={18}/></Link>
         </div>})}
       </div>
     </div></section>
