@@ -326,3 +326,5 @@ a.course{text-decoration:none;color:inherit;cursor:pointer}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
 
 .howto-vid{margin:18px 0 0;background:#F3E8FF;border-radius:16px;padding:12px 16px}.howto-vid summary{cursor:pointer;font-weight:700;color:var(--purple)}.howto-vid video{display:block;width:100%;max-width:340px;aspect-ratio:9/16;margin:12px auto 4px;border-radius:14px;background:#000}
+
+html{scroll-behavior:smooth}#join{scroll-margin-top:130px}.step-link{display:block;text-decoration:none;color:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s}.step-link:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(59,43,155,.15)}.step-go{display:inline-block;margin-top:10px;font-weight:700;font-size:14px;color:var(--magenta)}
