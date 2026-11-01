@@ -11,6 +11,18 @@ export default function RefDash({ me }) {
   const pending = me.payouts.find(p => p.status === 'pending');
   const paid = me.payouts.filter(p => p.status === 'paid').reduce((a, p) => a + p.amount, 0);
   const copy = (t, k) => { navigator.clipboard.writeText(t); setCopied(k); setTimeout(() => setCopied(''), 1500); };
+  const caption = `Learn AI art, video, music, automation and digital marketing with Sommyart Academy 🚀 Practical classes, real projects. Enroll with my link 👉 ${link}`;
+  const [sharing, setSharing] = useState(false);
+  async function shareVideo() {
+    setSharing(true);
+    try {
+      const blob = await (await fetch('/welcome.mp4')).blob();
+      const file = new File([blob], 'Sommyart-Academy-Promo.mp4', { type: 'video/mp4' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: caption }); }
+      else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click(); copy(caption, 'cap'); alert('Video downloaded and caption copied. Post the video and paste the caption with it.'); }
+    } catch (e) { if (e?.name !== 'AbortError') alert('Could not share. Use Download video instead.'); }
+    setSharing(false);
+  }
   const wa = `https://wa.me/?text=${encodeURIComponent(`I'm learning AI and digital skills with Sommyart Academy. Join here 👉 ${link}`)}`;
   async function saveBank(e) { e.preventDefault(); setBusy('b'); try { await call({ action: 'bank', ...bank }); say('b', '✓ Bank details saved.'); } catch (x) { say('b', '✗ ' + x.message); } setBusy(''); }
   async function request(kind) {
@@ -31,6 +43,17 @@ export default function RefDash({ me }) {
       <section className="formcard" style={{ gridColumn: '1/-1' }}><h3><Icon name="Share2" size={20} /> Your referral link</h3>
         <div className="reflink"><code>{link}</code><button className="btn btn-dark sm" onClick={() => copy(link, 'l')}>{copied === 'l' ? 'Copied ✓' : 'Copy link'}</button><a className="btn sm" style={{ background: '#25D366', color: '#fff' }} href={wa} target="_blank" rel="noreferrer">Share on WhatsApp</a></div>
         <p className="note">Or tell people your code <b style={{ color: 'var(--purple)', fontSize: 16 }}>{me.code}</b> <a href="#" onClick={(e) => { e.preventDefault(); copy(me.code, 'c'); }}>{copied === 'c' ? 'copied ✓' : 'copy'}</a>. They can also type your WhatsApp number on the payment form.</p>
+      </section>
+      <section className="formcard" style={{ gridColumn: '1/-1' }}><h3><Icon name="Clapperboard" size={20} /> Promo video</h3>
+        <p className="note" style={{ marginTop: 0 }}>Share our official promo video together with your link. Posts with a video get far more attention on WhatsApp Status, TikTok and Instagram.</p>
+        <video src="/welcome.mp4" poster="/welcome-poster.jpg" controls playsInline preload="none" style={{ width: '100%', maxWidth: 640, borderRadius: 14, display: 'block', margin: '12px 0', background: '#000' }} />
+        <div className="reflink" style={{ flexWrap: 'wrap' }}>
+          <button className="btn btn-primary sm" disabled={sharing} onClick={shareVideo}>{sharing ? 'Preparing…' : '📤 Share video + link'}</button>
+          <a className="btn btn-dark sm" href="/welcome.mp4" download="Sommyart-Academy-Promo.mp4">⬇️ Download video</a>
+          <button className="btn sm" onClick={() => copy(caption, 'cap')}>{copied === 'cap' ? 'Caption copied ✓' : 'Copy caption'}</button>
+        </div>
+        <p className="note">Caption: <i>{caption}</i></p>
+        <p className="note">On a computer, download the video, then post it with the caption. On a phone, "Share video + link" sends both straight to WhatsApp or other apps.</p>
       </section>
       <section className="formcard"><h3><Icon name="Briefcase" size={20} /> Cash out</h3>
         {pending ? <div className="banner" style={{ marginTop: 0 }}>⏳ Your {pending.kind === 'withdraw' ? 'withdrawal' : 'course-fee request'} of <b>{N(pending.amount)}</b> is being processed.</div> : <>
