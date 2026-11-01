@@ -59,6 +59,10 @@ export async function POST(req) {
     const { error } = await supabase.rpc('st_profile', { k: K(), p_token: token, p_first: String(b.first), p_last: String(b.last), p_photo: photo });
     if (error) return err('Please log in again.', 401); revalidatePath('/'); return NextResponse.json({ ok: true });
   }
+  if (a === 'setpw') {
+    const { data, error } = await supabase.rpc('st_set_password', { k: K(), p_token: token, p_pw: String(b.password || '') });
+    if (error) return err('Please log in again.', 401); if (data?.error) return err(data.error); return NextResponse.json({ ok: true });
+  }
   if (a === 'feedback') {
     const { data } = await supabase.rpc('st_feedback', { k: K(), p_token: token, p_text: String(b.text || '') });
     if (data === 'no_badge') return err('Your feedback unlocks once your badge has been assigned.');

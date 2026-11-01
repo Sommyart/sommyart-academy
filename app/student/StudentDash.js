@@ -19,7 +19,17 @@ export default function StudentDash({ me, classrooms }) {
   async function saveProfile(e) { e.preventDefault(); setBusy('p'); try { await call({ action: 'profile', ...p }); say('p', '✓ Profile saved.'); } catch (x) { say('p', '✗ ' + x.message); } setBusy(''); }
   async function sendFb(e) { e.preventDefault(); setBusy('f'); try { await call({ action: 'feedback', text: fb }); say('f', '✓ Thank you! Your feedback is live on our homepage.'); } catch (x) { say('f', '✗ ' + x.message); } setBusy(''); }
   async function logout() { await call({ action: 'logout' }).catch(() => {}); location.reload(); }
+  const [mustChange, setMustChange] = useState(!!me.must_change); const [npw, setNpw] = useState({ a: '', b: '' });
+  async function setPw(e) { e.preventDefault(); if (npw.a.length < 8) return say('pw', '✗ Use at least 8 characters.'); if (npw.a !== npw.b) return say('pw', '✗ The two passwords do not match.'); setBusy('pw'); try { await call({ action: 'setpw', password: npw.a }); setMustChange(false); } catch (x) { say('pw', '✗ ' + x.message); } setBusy(''); }
   const locked = !me.badge;
+  if (mustChange) return (<div className="wrap" style={{ maxWidth: 480, padding: '50px 20px 80px' }}><form className="formcard" onSubmit={setPw}>
+    <span className="eyebrow">Welcome, {me.first_name} 👋</span><h2 style={{ fontSize: 24, margin: '6px 0 8px' }}>Create your own password</h2>
+    <p className="note" style={{ marginTop: 0 }}>You logged in with a temporary password. Choose a new one to keep your account secure.</p>
+    <label>New password</label><input type="password" required minLength={8} value={npw.a} onChange={e => setNpw({ ...npw, a: e.target.value })} placeholder="At least 8 characters" />
+    <label>Confirm new password</label><input type="password" required minLength={8} value={npw.b} onChange={e => setNpw({ ...npw, b: e.target.value })} />
+    {msg.pw && <p className="err">{msg.pw}</p>}
+    <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 18 }} disabled={busy === 'pw'}>{busy === 'pw' ? 'Saving…' : 'Save password & continue →'}</button>
+  </form></div>);
   return (<div className="wrap sd">
     <div className="sd-head">
       <label className="sd-avatar" title="Change photo">{p.photo ? <img src={p.photo} alt="" /> : <span>{p.first[0]}{p.last[0]}</span>}<em>{busy === 'photo' ? '…' : <Icon name="ImagePlus" size={16} />}</em><input type="file" accept="image/*" onChange={photo} hidden /></label>
