@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase, getSettings, links } from '@/lib/supabase';
-import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding, tplScholarCode } from '@/lib/mail';
+import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding, tplScholarCode, addStudentContact } from '@/lib/mail';
 import { revalidatePath } from 'next/cache';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 export const maxDuration = 300;
@@ -11,6 +11,7 @@ export async function POST(req) {
   if (b.type === 'approve' || b.type === 'reject') {
     const { data: row, error } = await supabase.rpc('admin_set_status', { k, p_id: b.id, p_status: b.type === 'approve' ? 'approved' : 'rejected' });
     if (error || !row) return bad('Could not update');
+    if (b.type === 'approve' && row?.email) await addStudentContact(row.email, row.first_name || row.full_name);
     if (!mailReady()) return NextResponse.json({ row, emailed: false });
     try {
       if (b.type === 'approve' && !b.resend && row.referrer_id) { const { data: rd } = await supabase.rpc('admin_referrers', { k }); const ref = (rd?.referrers || []).find(x => x.id === row.referrer_id); if (ref) await send(ref.email, `You earned ₦${(row.amount / 10).toLocaleString('en-NG')} 🎉`, tplRefEarned(ref.name, row.amount / 10, row.package, ref.balance)).catch(() => {}); }
@@ -67,6 +68,7 @@ export async function POST(req) {
     if (!st.first || !st.surname || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(st.email || '')) return bad('Fill in name and a valid email');
     const { data: row, error } = await supabase.rpc('admin_add_student', { k, p: st });
     if (error || !row) return bad('Could not add student');
+    await addStudentContact(row.email, row.first_name || row.full_name || st.first);
     let emailed = false;
     if (st.notify && mailReady()) { try { const s = await getSettings(); const ls = links(row.package === 'vip' ? s.vip_links : s.regular_links); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, ls)); emailed = true; } catch {} }
     return NextResponse.json({ row, emailed });
