@@ -10,7 +10,7 @@ export default function EnrollForm({ pkg, bank, refCode, paystack }) {
   const ready = bank.number && bank.bank;
   const [method, setMethod] = useState(paystack ? 'paystack' : 'transfer'); const instant = method === 'paystack';
   const [referred, setReferred] = useState(!!refCode); const [ref, setRef] = useState(refCode || '');
-  useEffect(() => { if (!refCode) { try { const r = localStorage.getItem('sa_ref'); if (r) { setRef(r); setReferred(true); } } catch {} } }, [refCode]);
+  useEffect(() => { const u = new URLSearchParams(location.search).get('ref'); if (u) { setRef(u.toUpperCase().slice(0, 20)); setReferred(true); return; } try { const r = localStorage.getItem('sa_ref'); if (r) { setRef(r); setReferred(true); } } catch {} }, []);
   async function submit(e) {
     e.preventDefault(); setErr('');
     if (instant) {

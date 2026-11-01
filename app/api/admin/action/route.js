@@ -22,7 +22,7 @@ export async function POST(req) {
   }
   if (b.type === 'settings') {
     for (const key of ['bank_name', 'account_name', 'account_number', 'regular_links', 'vip_links']) {
-      const { error } = await supabase.rpc('admin_set_setting', { k, p_key: key, p_value: String(b.settings?.[key] ?? '') });
+      const { error } = await supabase.rpc('admin_set_setting', { k, p_key: key, p_value: String(b.settings?.[key] ?? '') }); revalidatePath('/enroll/regular'); revalidatePath('/enroll/vip');
       if (error) return bad('Could not save');
     }
     return NextResponse.json({ ok: true });
