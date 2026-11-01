@@ -52,7 +52,7 @@ export default function RefDash({ me }) {
           <a className="btn btn-dark sm" href="/welcome.mp4" download="Sommyart-Academy-Promo.mp4">⬇️ Download video</a>
           <button className="btn sm" onClick={() => copy(caption, 'cap')}>{copied === 'cap' ? 'Caption copied ✓' : 'Copy caption'}</button>
         </div>
-        <p className="note">Caption: <i>{caption}</i></p>
+        <p className="note" style={{ overflowWrap: "anywhere" }}>Caption: <i>{caption}</i></p>
         <p className="note">On a computer, download the video, then post it with the caption. On a phone, "Share video + link" sends both straight to WhatsApp or other apps.</p>
       </section>
       <section className="formcard"><h3><Icon name="Briefcase" size={20} /> Cash out</h3>
