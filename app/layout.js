@@ -5,8 +5,8 @@ export const metadata = {
   metadataBase: new URL(process.env.SITE_URL || 'https://www.sommyartacademy.site'),
   title: 'Sommyart Academy | From AI creator to AI entrepreneur',
   description: 'Practical AI training that turns skills into income: AI video, automation, web design and more. Step-by-step classes and a certificate on completion.',
-  openGraph: { title: 'Sommyart Academy | From AI creator to AI entrepreneur', description: 'Practical AI training that turns skills into income.', url: '/', siteName: 'Sommyart Academy', images: [{ url: '/og-logo.png', width: 1200, height: 630 }], type: 'website' },
-  twitter: { card: 'summary_large_image', images: ['/og-logo.png'] },
+  openGraph: { title: 'Sommyart Academy | From AI creator to AI entrepreneur', description: 'Practical AI training that turns skills into income.', url: '/', siteName: 'Sommyart Academy', images: [{ url: '/og-academy.jpg', width: 1200, height: 630 }], type: 'website' },
+  twitter: { card: 'summary_large_image', images: ['/og-academy.jpg'] },
 };
 export default function RootLayout({ children }) {
   return (<html lang="en"><head>
