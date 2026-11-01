@@ -324,3 +324,5 @@ a.course{text-decoration:none;color:inherit;cursor:pointer}
 .pill.awaiting{background:#eef;color:#556}
 .pill.boot,.sbadge.boot{background:#FFF1E0;color:#b26a00}.sbadge.boot{margin-left:6px}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+
+.howto-vid{margin:18px 0 0;background:#F3E8FF;border-radius:16px;padding:12px 16px}.howto-vid summary{cursor:pointer;font-weight:700;color:var(--purple)}.howto-vid video{display:block;width:100%;max-width:340px;aspect-ratio:9/16;margin:12px auto 4px;border-radius:14px;background:#000}
