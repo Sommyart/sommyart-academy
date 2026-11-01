@@ -12,9 +12,9 @@ import Pricing from '@/components/Pricing';
 export const revalidate = 60;
 
 const POPULAR = [
-  ['Clapperboard', 'AI video and animation', 'Create videos brands pay for.'],
-  ['Workflow', 'AI automation', 'Build workflows that save hours.'],
-  ['MonitorSmartphone', 'Web design with AI', 'Ship sites without writing code.'],
+  ['Clapperboard', 'AI video and animation', 'Create videos brands pay for.', 'ai-video-creation'],
+  ['Workflow', 'AI automation', 'Build workflows that save hours.', 'ai-automation'],
+  ['MonitorSmartphone', 'Web design with AI', 'Ship sites without writing code.', 'web-development-and-design-with-ai'],
 ];
 const WHO = [
   ['Beginners', 'Start from zero with clear, step-by-step lessons.'],
@@ -46,7 +46,7 @@ export default async function Home() {
     <section id="courses"><div className="wrap center">
       <h2 className="h2" data-reveal>Popular courses</h2>
       <p className="sub" data-reveal="80">Start with the skills people are paying for.</p>
-      <div className="cards3">{POPULAR.map(([ic, t, d], i) => <div key={t} className="tcard" data-reveal={i * 80}><div className="ic"><Icon name={ic} size={22} /></div><h3>{t}</h3><p>{d}</p></div>)}</div>
+      <div className="cards3">{POPULAR.map(([ic, t, d, slug], i) => <Link key={t} href={`/courses/${slug}`} className="tcard tcard-link" data-reveal={i * 80}><div className="ic"><Icon name={ic} size={22} /></div><h3>{t}</h3><p>{d}</p><span className="tgo">See what you'll learn <Icon name="ArrowRight" size={16} /></span></Link>)}</div>
       <Link className="tlink" href="/courses">View all courses →</Link>
     </div></section>
 
