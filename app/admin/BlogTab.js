@@ -1,15 +1,12 @@
 'use client';
 import { opt } from '@/lib/img';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { uploadFile } from '@/lib/upload';
 const empty = { id: '', title: '', slug: '', category: 'General', excerpt: '', body: '', cover_url: '', youtube_url: '', video_url: '', published: true };
 const act = async (body) => { const r = await fetch('/api/admin/action', { method: 'POST', body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Failed'); return j; };
 async function upload(file, folder) {
   if (file.size > 50 * 1024 * 1024) throw new Error('File is over 50MB. Put longer videos on YouTube instead.');
-  const path = `${folder}/${Date.now()}-${file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-')}`;
-  const { error } = await supabase.storage.from('media').upload(path, file, { contentType: file.type });
-  if (error) throw new Error('Upload failed: ' + error.message);
-  return supabase.storage.from('media').getPublicUrl(path).data.publicUrl;
+  return uploadFile(file, folder === 'videos' ? 'blogvideo' : 'cover');
 }
 export default function BlogTab({ posts: init, setMsg }) {
   const [posts, setPosts] = useState(init); const [p, setP] = useState(null); const [busy, setBusy] = useState('');

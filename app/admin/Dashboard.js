@@ -63,6 +63,7 @@ export default function Dashboard({ rows: init, subs, posts, reviews, students, 
       {tab === 'jobs' && <JobsTab jobs={jobs} setMsg={setMsg} />}
       {tab === 'courses' && <CoursesTab courses={courses} setMsg={setMsg} />}
       {tab === 'reviews' && <ReviewsTab items={reviews} setMsg={setMsg} />}
+      {tab === 'settings' && <div className="formcard" style={{maxWidth:640,marginBottom:16}}><b>☁️ Cloudflare file storage</b><p style={{fontSize:14,color:'#555',margin:'6px 0 10px'}}>Run step 1 once, then step 2 once to copy existing photos and blog covers from Supabase.</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{[['cors','1. Allow uploads'],['migrate','2. Copy existing files']].map(([k,l])=><button key={k} type="button" className="btn btn-dark sm" disabled={!!busy} onClick={async()=>{setBusy('r2'+k);setMsg('');try{const x=await fetch('/api/admin/r2',{method:'POST',body:JSON.stringify({step:k})});const j=await x.json().catch(()=>({}));if(!x.ok)throw new Error(j.error||'Failed');setMsg(k==='cors'?'✓ Uploads to Cloudflare allowed.':`✓ Copied ${j.copied} files and updated ${j.updated} links.`)}catch(x){setMsg('✗ '+x.message)}setBusy('')}}>{busy==='r2'+k?'Working…':l}</button>)}</div></div>}
       {tab === 'settings' && <form className="formcard" onSubmit={saveSettings} style={{maxWidth:640}}>
         <h3>Payment account</h3>
         <label>Bank name</label><input value={s.bank_name||''} onChange={e=>setS({...s,bank_name:e.target.value})} />

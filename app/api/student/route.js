@@ -54,7 +54,8 @@ export async function POST(req) {
   if (a === 'logout') { await supabase.rpc('st_logout', { k: K(), p_token: token }); const res = NextResponse.json({ ok: true }); res.cookies.delete(ST_COOKIE); return res; }
   if (a === 'profile') {
     const photo = String(b.photo || '');
-    if (photo && !photo.startsWith(`${SUPABASE_URL}/storage/v1/object/public/media/avatars/`)) return err('Invalid photo.');
+    const R2 = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
+    if (photo && !photo.startsWith(`${SUPABASE_URL}/storage/v1/object/public/media/avatars/`) && !(R2 && photo.startsWith(`${R2}/avatars/`))) return err('Invalid photo.');
     if (!b.first || !b.last) return err('Name is required.');
     const { error } = await supabase.rpc('st_profile', { k: K(), p_token: token, p_first: String(b.first), p_last: String(b.last), p_photo: photo });
     if (error) return err('Please log in again.', 401); revalidatePath('/'); return NextResponse.json({ ok: true });

@@ -1,7 +1,7 @@
 'use client';
 import { opt } from '@/lib/img';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { uploadFile } from '@/lib/upload';
 const act = async (body) => { const r = await fetch('/api/admin/action', { method: 'POST', body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Failed'); return j; };
 export default function StudentsTab({ students: init, setMsg }) {
   const [list, setList] = useState(init); const [q, setQ] = useState(''); const [f, setF] = useState('all'); const [busy, setBusy] = useState('');
@@ -10,10 +10,8 @@ export default function StudentsTab({ students: init, setMsg }) {
   }
   async function cert(s, e) {
     const file = e.target.files[0]; if (!file) return; setBusy(s.id);
-    const path = `certificates/${s.id}-${Date.now()}.${(file.name.split('.').pop() || 'pdf').toLowerCase()}`;
-    const up = await supabase.storage.from('media').upload(path, file, { contentType: file.type });
-    if (up.error) { setMsg('✗ Upload failed (PDF, PNG or JPG under 50MB).'); setBusy(''); return; }
-    await upd(s, { certificate_url: supabase.storage.from('media').getPublicUrl(path).data.publicUrl, completed: true }, `Certificate added for ${s.first_name}.`);
+    let url; try { url = await uploadFile(file, 'certificate'); } catch (x) { setMsg('✗ ' + x.message + ' (PDF, PNG or JPG under 20MB)'); setBusy(''); return; }
+    await upd(s, { certificate_url: url, completed: true }, `Certificate added for ${s.first_name}.`);
   }
   const shown = list.filter(s => (f === 'all' || (f === 'pending' ? !s.badge && s.verified : f === 'unverified' ? !s.verified : s.badge === f)) && (s.email + s.first_name + s.last_name).toLowerCase().includes(q.toLowerCase()));
   const pending = list.filter(s => s.verified && !s.badge).length;

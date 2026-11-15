@@ -1,7 +1,7 @@
 'use client';
 import { opt } from '@/lib/img';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { uploadFile } from '@/lib/upload';
 import Icon from '@/components/Icon';
 const call = async (body) => { const r = await fetch('/api/student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Something went wrong'); return j; };
 export const Badge = ({ b }) => b ? <span className={'sbadge ' + b}><Icon name={b === 'vip' ? 'Sparkles' : 'GraduationCap'} size={14} /> {b === 'vip' ? 'VIP Student' : 'Regular Student'}</span> : <span className="sbadge pending">Badge pending</span>;
@@ -11,10 +11,8 @@ export default function StudentDash({ me, classrooms }) {
   const say = (k, m) => setMsg(x => ({ ...x, [k]: m }));
   async function photo(e) {
     const file = e.target.files[0]; if (!file) return; if (file.size > 5 * 1024 * 1024) return say('p', '✗ Photo must be under 5MB.');
-    setBusy('photo'); const path = `avatars/${me.id}-${Date.now()}.${(file.name.split('.').pop() || 'jpg').toLowerCase()}`;
-    const up = await supabase.storage.from('media').upload(path, file, { contentType: file.type });
-    if (up.error) { say('p', '✗ Upload failed.'); setBusy(''); return; }
-    const url = supabase.storage.from('media').getPublicUrl(path).data.publicUrl; setP(x => ({ ...x, photo: url }));
+    setBusy('photo'); let url; try { url = await uploadFile(file, 'avatar'); } catch (x) { say('p', '✗ ' + x.message); setBusy(''); return; }
+    setP(x => ({ ...x, photo: url }));
     try { await call({ action: 'profile', first: p.first, last: p.last, photo: url }); say('p', '✓ Photo updated.'); } catch (x) { say('p', '✗ ' + x.message); } setBusy('');
   }
   async function saveProfile(e) { e.preventDefault(); setBusy('p'); try { await call({ action: 'profile', ...p }); say('p', '✓ Profile saved.'); } catch (x) { say('p', '✗ ' + x.message); } setBusy(''); }
