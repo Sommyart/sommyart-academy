@@ -90,6 +90,16 @@ export async function POST(req) {
     revalidatePath('/'); revalidatePath('/courses'); revalidatePath('/courses/' + course.slug);
     return NextResponse.json({ course });
   }
+  if (b.type === 'cert-issue') {
+    const course = String(b.course || '').trim().slice(0, 120); if (!course) return bad('Enter the course name');
+    const { data: cert, error } = await supabase.rpc('cert_issue', { k, p_student: b.id, p_course: course, p_site: SITE_URL });
+    if (error || !cert) return bad('Could not create the certificate');
+    const { data: all } = await supabase.rpc('admin_students', { k }); const st = (all || []).find(x => x.id === b.id);
+    const url = `${SITE_URL}/certificate/${cert.code}`; let emailed = false;
+    if (st) { try { await send(st.email, 'Your Sommyart Academy certificate is ready 🏆', tplCert(st, url, course)); emailed = true; } catch {} }
+    revalidatePath('/');
+    return NextResponse.json({ cert, url, emailed });
+  }
   if (b.type === 'student-update') {
     const patch = {}; for (const key of ['badge', 'completed', 'certificate_url']) if (key in (b.patch || {})) patch[key] = b.patch[key];
     const { data: before } = await supabase.rpc('admin_students', { k });
