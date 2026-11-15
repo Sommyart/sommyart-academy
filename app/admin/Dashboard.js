@@ -9,8 +9,9 @@ import JobsTab from './JobsTab';
 import ReferralsTab from './ReferralsTab';
 import AddStudent from './AddStudent';
 import CoursesTab from './CoursesTab';
+import CertsTab from './CertsTab';
 const act = async (body) => { const r = await fetch('/api/admin/action', { method: 'POST', body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Failed'); return j; };
-export default function Dashboard({ rows: init, subs, posts, reviews, students, jobs, refdata, courses, settings, mail, err, base }) {
+export default function Dashboard({ rows: init, subs, posts, reviews, students, jobs, refdata, courses, mcs, certs, settings, mail, err, base }) {
   const [rows, setRows] = useState(init); const [tab, setTab] = useState('pending'); const [busy, setBusy] = useState(''); const [msg, setMsg] = useState('');
   const [s, setS] = useState(settings); const [nl, setNl] = useState({ subject: '', body: '', audience: 'subscribers' });
   const cnt = (st) => rows.filter(r => r.status === st).length;
@@ -37,7 +38,7 @@ export default function Dashboard({ rows: init, subs, posts, reviews, students, 
         <div className="kpi"><b>{rows.filter(r=>r.status==='approved'&&r.bootcamp).length} 🏕️</b><span>Bootcamp students</span></div>
         <div className="kpi"><b>{naira(revenue)}</b><span>Confirmed revenue</span></div>
       </div>
-      <div className="tabs">{[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All'],['students',`Students${students.filter(x=>x.verified&&!x.badge).length?' 🔔'+students.filter(x=>x.verified&&!x.badge).length:''}`],['referrals',`Referrals${refdata.payouts.filter(p=>p.status==='pending').length?' 💸'+refdata.payouts.filter(p=>p.status==='pending').length:''}`],['jobs','Jobs'],['courses','Courses'],['blog','Blog'],['reviews','Reviews'],['subscribers','Subscribers'],['newsletter','Send email'],['settings','Settings']].map(([k,l])=><button key={k} className={tab===k?'on':''} onClick={()=>{setTab(k);setMsg('')}}>{l}{['pending','approved','rejected'].includes(k)?` (${cnt(k)})`:''}</button>)}</div>
+      <div className="tabs">{[['pending','Pending'],['approved','Approved'],['rejected','Rejected'],['all','All'],['students',`Students${students.filter(x=>x.verified&&!x.badge).length?' 🔔'+students.filter(x=>x.verified&&!x.badge).length:''}`],['referrals',`Referrals${refdata.payouts.filter(p=>p.status==='pending').length?' 💸'+refdata.payouts.filter(p=>p.status==='pending').length:''}`],['certs','🏆 Certificates'],['jobs','Jobs'],['courses','Courses'],['blog','Blog'],['reviews','Reviews'],['subscribers','Subscribers'],['newsletter','Send email'],['settings','Settings']].map(([k,l])=><button key={k} className={tab===k?'on':''} onClick={()=>{setTab(k);setMsg('')}}>{l}{['pending','approved','rejected'].includes(k)?` (${cnt(k)})`:''}</button>)}</div>
       {msg && <p style={{margin:'0 0 14px',fontWeight:600}}>{msg}</p>}
       {['pending','approved','all'].includes(tab) && <AddStudent setMsg={setMsg} onAdded={(row)=>{setRows([row,...rows]);setTab('approved')}} />}
       {['pending','approved','rejected','all'].includes(tab) && (list.length ? list.map(r => {
@@ -56,6 +57,7 @@ export default function Dashboard({ rows: init, subs, posts, reviews, students, 
             {r.receipt_path.startsWith('manual/') && !r.scholarship && !r.bootcamp && <label className="btn sm" style={{border:'1px solid #c9c4f0',color:'#3B3591',cursor:'pointer'}}>{busy===r.id+'f'?'Uploading…':'📎 Attach receipt'}<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" hidden onChange={async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const a=window.prompt(`Amount paid by ${r.full_name} (₦)`, r.package==='vip'?'50000':'30000');if(a===null)return;setBusy(r.id+'f');try{const fd=new FormData();fd.append('id',r.id);fd.append('amount',a.replace(/[^0-9.]/g,''));fd.append('file',f);const x=await fetch('/api/admin/attach-receipt',{method:'POST',body:fd});const j=await x.json().catch(()=>({}));if(!x.ok)throw new Error(j.error||'Failed');setRows(rows.map(y=>y.id===r.id?j.row:y));setMsg(`✓ Receipt attached. ${naira(j.row.amount)} added to revenue.`)}catch(x){setMsg('✗ '+x.message)}setBusy('')}} /></label>}
             {r.status === 'pending' && <button className="btn sm" style={{border:'1px solid #f2b8b8',color:'#c0262d'}} disabled={busy===r.id} onClick={()=>setStatus(r,'reject')}>Reject</button>}
           </div></div>; }) : <p style={{color:'#666'}}>Nothing here yet.</p>)}
+      {tab === 'certs' && <CertsTab mcs={mcs} certs={certs} students={students} setMsg={setMsg} />}
       {tab === 'blog' && <BlogTab posts={posts} setMsg={setMsg} />}
       {tab === 'subscribers' && <SubsTab subs={subs} />}
       {tab === 'students' && <StudentsTab students={students} setMsg={setMsg} />}

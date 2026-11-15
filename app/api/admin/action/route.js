@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase, getSettings, links } from '@/lib/supabase';
-import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding, tplScholarCode, addStudentContact } from '@/lib/mail';
+import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding, tplScholarCode, addStudentContact, tplCertPortal } from '@/lib/mail';
 import { revalidatePath } from 'next/cache';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 export const maxDuration = 300;
@@ -89,6 +89,25 @@ export async function POST(req) {
     if (error || !course) return bad('Could not save course');
     revalidatePath('/'); revalidatePath('/courses'); revalidatePath('/courses/' + course.slug);
     return NextResponse.json({ course });
+  }
+  if (b.type === 'mc-add') { const name = String(b.name || '').trim().slice(0, 120); if (!name) return bad('Enter a name'); const { data, error } = await supabase.rpc('mc_add', { k, p_name: name }); if (error) return bad('Could not add'); return NextResponse.json({ mc: data }); }
+  if (b.type === 'mc-delete') { const { error } = await supabase.rpc('mc_delete', { k, p_id: b.id }); if (error) return bad('Could not delete'); return NextResponse.json({ ok: true }); }
+  if (b.type === 'cert-bulk') {
+    const course = String(b.course || '').trim().slice(0, 120); const ids = Array.isArray(b.ids) ? b.ids.slice(0, 300) : [];
+    if (!course || !ids.length) return bad('Pick a masterclass and at least one student');
+    const { data: existing } = await supabase.rpc('cert_list', { k });
+    const has = new Set((existing || []).filter(c => c.course === course && !c.revoked).map(c => c.student_id));
+    const { data: all } = await supabase.rpc('admin_students', { k });
+    const issued = [], skipped = [], failed = []; let emailed = 0;
+    for (const id of ids) {
+      const st = (all || []).find(x => x.id === id); if (!st) { failed.push(id); continue; }
+      if (has.has(id)) { skipped.push(st.first_name); continue; }
+      const { data: cert, error } = await supabase.rpc('cert_issue', { k, p_student: id, p_course: course, p_site: SITE_URL });
+      if (error || !cert) { failed.push(st.first_name); continue; }
+      issued.push(cert);
+      try { await send(st.email, 'Your Sommyart Academy certificate is ready 🏆', tplCertPortal(st, course)); emailed++; } catch {}
+    }
+    return NextResponse.json({ issued, skipped, failed, emailed });
   }
   if (b.type === 'cert-issue') {
     const course = String(b.course || '').trim().slice(0, 120); if (!course) return bad('Enter the course name');

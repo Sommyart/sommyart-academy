@@ -5,7 +5,7 @@ import { uploadFile } from '@/lib/upload';
 import Icon from '@/components/Icon';
 const call = async (body) => { const r = await fetch('/api/student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Something went wrong'); return j; };
 export const Badge = ({ b }) => b ? <span className={'sbadge ' + b}><Icon name={b === 'vip' ? 'Sparkles' : 'GraduationCap'} size={14} /> {b === 'vip' ? 'VIP Student' : 'Regular Student'}</span> : <span className="sbadge pending">Badge pending</span>;
-export default function StudentDash({ me, classrooms }) {
+export default function StudentDash({ me, classrooms, certs = [] }) {
   const [p, setP] = useState({ first: me.first_name, last: me.last_name, photo: me.photo_url || '' });
   const [fb, setFb] = useState(me.feedback || ''); const [msg, setMsg] = useState({}); const [busy, setBusy] = useState('');
   const say = (k, m) => setMsg(x => ({ ...x, [k]: m }));
@@ -41,8 +41,9 @@ export default function StudentDash({ me, classrooms }) {
         {locked ? <p className="note">Unlocks when your badge is assigned.</p> : classrooms.map((l, i) => <a key={l} className="btn btn-dark sm" style={{ margin: '8px 8px 0 0' }} href={l} target="_blank" rel="noreferrer">Classroom {classrooms.length > 1 ? i + 1 : ''} →</a>)}
         {me.badge === 'vip' && <p className="note">VIP: masterclasses, PDFs and new courses are inside your classrooms.</p>}
       </section>
-      <section className="formcard"><h3><Icon name="GraduationCap" size={20} /> My certificate</h3>
-        {me.certificate_url ? <><p>🎉 Congratulations on completing your course!</p><a className="btn btn-primary sm" href={me.certificate_url} target="_blank" rel="noreferrer">Download / print certificate</a></>
+      <section className="formcard"><h3><Icon name="GraduationCap" size={20} /> My certificates</h3>
+        {certs.length ? <><p>🎉 Congratulations! Open a certificate, tap <b>Download / Print</b>, then choose <b>Save as PDF</b>.</p>{certs.map(c => <div key={c.code} style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', padding: '10px 0', borderTop: '1px solid #eee' }}><span><b>{c.course}</b><br /><small style={{ color: '#666' }}>{new Date(c.issued_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · ID {c.code}</small></span><a className="btn btn-primary sm" href={`/certificate/${c.code}`} target="_blank" rel="noreferrer">View &amp; download</a></div>)}</>
+        : me.certificate_url ? <><p>🎉 Congratulations on completing your course!</p><a className="btn btn-primary sm" href={me.certificate_url} target="_blank" rel="noreferrer">Download / print certificate</a></>
           : <p className="note">{me.completed ? 'You have completed your course. Your certificate is being prepared and will appear here and in your email.' : 'Complete your course and your certificate will appear here and be emailed to you.'}</p>}
       </section>
       <section className="formcard"><h3><Icon name="Users" size={20} /> My profile</h3>
