@@ -1,6 +1,7 @@
+import { opt } from '@/lib/img';
 import Icon from './Icon';
 export function ytId(u) { const m = (u || '').match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : null; }
-export function cover(p) { return p.cover_url || (ytId(p.youtube_url) ? `https://i.ytimg.com/vi/${ytId(p.youtube_url)}/hqdefault.jpg` : null); }
+export function cover(p) { return opt(p.cover_url, 640) || (ytId(p.youtube_url) ? `https://i.ytimg.com/vi/${ytId(p.youtube_url)}/hqdefault.jpg` : null); }
 export default function PostCard({ p, i = 0 }) {
   const c = cover(p);
   return (<a className="post glow" href={`/blog/${p.slug}`} data-reveal={i*90}>

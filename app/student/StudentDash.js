@@ -1,4 +1,5 @@
 'use client';
+import { opt } from '@/lib/img';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Icon from '@/components/Icon';
@@ -32,7 +33,7 @@ export default function StudentDash({ me, classrooms }) {
   </form></div>);
   return (<div className="wrap sd">
     <div className="sd-head">
-      <label className="sd-avatar" title="Change photo">{p.photo ? <img src={p.photo} alt="" /> : <span>{p.first[0]}{p.last[0]}</span>}<em>{busy === 'photo' ? '…' : <Icon name="ImagePlus" size={16} />}</em><input type="file" accept="image/*" onChange={photo} hidden /></label>
+      <label className="sd-avatar" title="Change photo">{p.photo ? <img src={opt(p.photo, 256)} alt="" /> : <span>{p.first[0]}{p.last[0]}</span>}<em>{busy === 'photo' ? '…' : <Icon name="ImagePlus" size={16} />}</em><input type="file" accept="image/*" onChange={photo} hidden /></label>
       <div><h1>Welcome, {p.first} 👋</h1><Badge b={me.badge} />{me.scholarship && <span className="sbadge schol">🎓 Scholarship</span>}{me.bootcamp && <span className="sbadge boot">🏕️ Bootcamp</span>}<p className="note">{me.email}</p></div>
       <button className="btn sm" style={{ border: '1px solid #ddd', marginLeft: 'auto' }} onClick={logout}>Log out</button>
     </div>

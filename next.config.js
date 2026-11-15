@@ -23,4 +23,4 @@ const headers = [
   { key: 'Permissions-Policy', value: 'camera=(), geolocation=(), payment=(), usb=(), microphone=(self "https://sommy-ai-guide.lovable.app")' },
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
 ];
-module.exports = { reactStrictMode: true, poweredByHeader: false, async headers() { return [{ source: '/:path*', headers }]; } };
+module.exports = { reactStrictMode: true, poweredByHeader: false, images: { remotePatterns: [{ protocol: 'https', hostname: 'pkaatuzohjwjipvixiog.supabase.co', pathname: '/storage/v1/object/public/**' }], formats: ['image/webp'], minimumCacheTTL: 31536000 }, async headers() { return [{ source: '/:path*', headers }]; } };

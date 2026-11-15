@@ -1,4 +1,5 @@
 'use client';
+import { opt } from '@/lib/img';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 const empty = { id: '', title: '', slug: '', category: 'General', excerpt: '', body: '', cover_url: '', youtube_url: '', video_url: '', published: true };
@@ -30,7 +31,7 @@ export default function BlogTab({ posts: init, setMsg }) {
     {busy === 'video_url' && <p className="note">Uploading video…</p>}{p.video_url && <p className="note">✓ Video attached. <a href="#" onClick={e => { e.preventDefault(); setP({ ...p, video_url: '' }); }}>Remove</a></p>}
     <label>Cover image (optional; YouTube thumbnail is used if empty)</label>
     <input type="file" accept="image/*" onChange={e => up(e, 'cover_url', 'covers')} />
-    {busy === 'cover_url' && <p className="note">Uploading image…</p>}{p.cover_url && <img src={p.cover_url} alt="" style={{ height: 90, borderRadius: 10, marginTop: 8 }} />}
+    {busy === 'cover_url' && <p className="note">Uploading image…</p>}{p.cover_url && <img src={opt(p.cover_url, 384)} alt="" style={{ height: 90, borderRadius: 10, marginTop: 8 }} />}
     <label>Article</label>
     <textarea rows={14} {...f('body')} placeholder={'Write your article here.\n\nLeave a blank line between paragraphs.\n## A heading\n- a bullet point\n**bold**, *italic*, [link text](https://…)'} />
     <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}><input type="checkbox" style={{ width: 'auto' }} checked={p.published} onChange={e => setP({ ...p, published: e.target.checked })} /> Publish now (untick to save as draft)</label>
