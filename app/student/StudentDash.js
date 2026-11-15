@@ -37,6 +37,9 @@ export default function StudentDash({ me, classrooms, certs = [] }) {
     </div>
     {locked && <div className="banner">Your account is active. Our team will confirm your enrollment and assign your badge shortly. You'll get an email when your portal is unlocked.</div>}
     <div className="sd-grid">
+      <section className="formcard"><h3><Icon name="PlayCircle" size={20} /> My courses</h3>
+        {locked ? <p className="note">Unlocks when your enrollment is confirmed.</p> : <><p className="note" style={{ marginTop: 0 }}>Watch your lessons here. Your progress is saved, and your certificate is issued automatically when you finish.</p><a className="btn btn-primary sm" href="/learn">Go to my courses →</a></>}
+      </section>
       <section className="formcard"><h3><Icon name="BookOpen" size={20} /> My classrooms</h3>
         {locked ? <p className="note">Unlocks when your badge is assigned.</p> : classrooms.map((l, i) => <a key={l} className="btn btn-dark sm" style={{ margin: '8px 8px 0 0' }} href={l} target="_blank" rel="noreferrer">Classroom {classrooms.length > 1 ? i + 1 : ''} →</a>)}
         {me.badge === 'vip' && <p className="note">VIP: masterclasses, PDFs and new courses are inside your classrooms.</p>}

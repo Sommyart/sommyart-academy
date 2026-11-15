@@ -8,7 +8,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   `img-src 'self' data: blob: https:`,
-  "media-src 'self' blob: " + SB + (R2 ? ' ' + R2 : ''),
+  "media-src 'self' blob: " + SB + ' ' + R2S3 + (R2 ? ' ' + R2 : ''),
   `connect-src 'self' ${SB} ${R2S3} wss://pkaatuzohjwjipvixiog.supabase.co https://vitals.vercel-insights.com`,
   "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://sommy-ai-guide.lovable.app",
   "frame-ancestors 'none'",
