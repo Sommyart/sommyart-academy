@@ -16,7 +16,8 @@ function UploadBar({ u }) {
   </div>);
 }
 const fmt = (s) => s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : '';
-const blank = { id: '', title: '', slug: '', description: '', cert_name: '', access: 'all', published: false };
+const blank = { id: '', title: '', slug: '', description: '', cert_name: '', access: 'all', published: false, open_from: '' };
+const day = (t) => t ? new Date(t).toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }) : '';
 export default function LmsTab({ setMsg }) {
   const [data, setData] = useState(null); const [cid, setCid] = useState(''); const [edit, setEdit] = useState(null); const [busy, setBusy] = useState('');
   const [nl, setNl] = useState({ title: '', description: '' }); const [file, setFile] = useState(null); const [up, setUp] = useState(null); const [prog, setProg] = useState(null);
@@ -55,6 +56,7 @@ export default function LmsTab({ setMsg }) {
       <label>Short description</label><textarea rows={2} value={edit.description} onChange={e => setEdit({ ...edit, description: e.target.value })} />
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 8 }}>
         <label style={{ fontWeight: 400 }}>Who can watch: <select value={edit.access} onChange={e => setEdit({ ...edit, access: e.target.value })} style={{ width: 'auto' }}><option value="all">All enrolled students</option><option value="vip">VIP students only</option></select></label>
+        <label style={{ fontWeight: 400 }}>Only students who enrolled from: <input type="date" style={{ width: 'auto' }} value={day(edit.open_from)} onChange={e => setEdit({ ...edit, open_from: e.target.value ? e.target.value + 'T00:00:00+01:00' : '' })} /> <small style={{ color: '#666' }}>(leave empty for all students)</small></label>
         <label style={{ fontWeight: 400, display: 'flex', gap: 8, alignItems: 'center' }}><input type="checkbox" style={{ width: 18, height: 18 }} checked={!!edit.published} onChange={e => setEdit({ ...edit, published: e.target.checked })} /> Published (students can see it)</label>
       </div>
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}><button className="btn btn-primary sm" disabled={busy === 'c'}>{busy === 'c' ? 'Saving…' : 'Save course'}</button><button type="button" className="btn sm" style={{ border: '1px solid #ddd' }} onClick={() => setEdit(null)}>Cancel</button>
@@ -62,7 +64,7 @@ export default function LmsTab({ setMsg }) {
     </form>}
     {course && !edit && <>
       <div className="formcard" style={{ maxWidth: 860, marginTop: 16 }}>
-        <b>{course.title}</b> <span className={'pill ' + (course.published ? 'approved' : 'pending')}>{course.published ? 'Published' : 'Draft'}</span> <small style={{ color: '#666' }}>· {course.access === 'vip' ? 'VIP only' : 'All enrolled students'} · certificate: “{course.cert_name}” · /learn/{course.slug}</small>
+        <b>{course.title}</b> <span className={'pill ' + (course.published ? 'approved' : 'pending')}>{course.published ? 'Published' : 'Draft'}</span> <small style={{ color: '#666' }}>· {course.access === 'vip' ? 'VIP only' : 'All enrolled students'} · {course.open_from ? `enrolled from ${new Date(course.open_from).toLocaleDateString('en-GB', { timeZone: 'Africa/Lagos', day: 'numeric', month: 'short', year: 'numeric' })}` : 'all enrollment dates'} · certificate: “{course.cert_name}” · /learn/{course.slug}</small>
         <h4 style={{ margin: '16px 0 8px' }}>Lessons ({lessons.length})</h4>
         <UploadBar u={up} />
         {lessons.map((l, i) => <div key={l.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 0', borderTop: '1px solid #f0f0f0', flexWrap: 'wrap' }}>
