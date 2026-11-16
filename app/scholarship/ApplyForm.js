@@ -31,7 +31,7 @@ export default function ApplyForm() {
     <textarea rows={3} maxLength={2000} {...v('goal')} placeholder="e.g. start offering AI video services, grow my business, get a job…" />
     <label>How did you hear about this scholarship?</label>
     <select {...v('heard')}><option value="">Select…</option>{HEARD.map(x => <option key={x}>{x}</option>)}</select>
-    <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontWeight: 400, marginTop: 16 }}><input type="checkbox" style={{ width: 20, height: 20, flex: 'none', marginTop: 2 }} checked={f.agree} onChange={e => setF({ ...f, agree: e.target.checked })} />I understand that if I'm selected, a one-time ₦5,000 admission fee confirms my place, and that I must complete the course within the period announced at onboarding.</label>
+    <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontWeight: 400, marginTop: 16 }}><input type="checkbox" style={{ width: 20, height: 20, flex: 'none', marginTop: 2 }} checked={f.agree} onChange={e => setF({ ...f, agree: e.target.checked })} />I understand that if I'm selected, a one-time ₦5,000 admission fee secures my slot, and that I must complete the course within the period announced at onboarding.</label>
     {err && <p style={{ color: '#c0262d', fontWeight: 600 }}>✗ {err}</p>}
     <button className="btn btn-primary" style={{ marginTop: 16, width: '100%', justifyContent: 'center' }} disabled={busy}>{busy ? 'Submitting…' : 'Submit my application'}</button>
   </form>);

@@ -22,7 +22,7 @@ export default function PayBox({ token, hasReceipt, paystack, bank }) {
       {paystack && <button type="button" className={method === 'paystack' ? 'on' : ''} onClick={() => setMethod('paystack')}><b>💳 Pay instantly</b><small>Card, transfer or USSD via Paystack. Confirmed automatically.</small></button>}
       <button type="button" className={method === 'transfer' ? 'on' : ''} onClick={() => setMethod('transfer')}><b>🏦 Bank transfer</b><small>Pay to our account and upload your receipt.</small></button>
     </div>
-    {method === 'paystack' ? <><div className="bank"><div className="row"><small>Admission fee</small><b style={{ fontSize: 22 }}>₦5,000</b></div></div><button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 14 }} disabled={busy} onClick={card}>{busy ? 'Opening secure checkout…' : 'Pay ₦5,000 now'}</button></>
+    {method === 'paystack' ? <><div className="bank"><div className="row"><small>Admission fee</small><b style={{ fontSize: 22 }}>₦5,000</b></div><p style={{ marginTop: 10, fontSize: 14, opacity: .9 }}>🌍 Outside Nigeria? You can pay with an international Visa or Mastercard. Your bank converts ₦5,000 to your currency, which is roughly US$3 to $4 depending on the exchange rate and your bank's fees.</p></div><button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 14 }} disabled={busy} onClick={card}>{busy ? 'Opening secure checkout…' : 'Pay ₦5,000 now'}</button></>
       : <form onSubmit={upload}>
         <div className="bank">{ready ? <>
           <div className="row"><small>Bank</small><b>{bank.bank}</b></div>
