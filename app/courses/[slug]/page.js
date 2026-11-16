@@ -3,6 +3,7 @@ import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import Chat from '@/components/Chat';
 import Icon from '@/components/Icon';
+import ClassroomBtn from './ClassroomBtn';
 import { getCourse, getCourses, STATUS, waAsk } from '@/lib/catalog';
 export const revalidate = 60;
 export async function generateMetadata({ params }) { const c = await getCourse(params.slug); return c ? { title: `${c.title} · Sommyart Academy`, description: c.summary } : {}; }
@@ -30,6 +31,7 @@ export default async function Course({ params }) {
         {c.outcome && <section><h2>What you will be able to do</h2><p className="outcome">{c.outcome}</p></section>}
       </main>
       <aside><div className="formcard cd-side">
+        <ClassroomBtn slug={c.slug} />
         <b style={{ fontSize: 18 }}>Ready to start?</b><p className="note">{included}.</p>
         <a className="btn btn-primary" style={{ justifyContent: 'center' }} href={c.kind === 'master' ? '/enroll/vip' : '/pricing'}>Enrol now <Icon name="ArrowRight" size={18} /></a>
         <a className="btn wa-btn" style={{ justifyContent: 'center' }} href={waAsk(c.title)} target="_blank" rel="noreferrer">Ask a question on WhatsApp</a>

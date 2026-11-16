@@ -87,6 +87,7 @@ export async function POST(req) {
   if (b.type === 'course-save') {
     const { data: course, error } = await supabase.rpc('admin_save_course', { k, p: b.course || {} });
     if (error || !course) return bad('Could not save course');
+    if ('classroom_url' in (b.course || {})) { const u = String(b.course.classroom_url || '').trim(); if (u && !/^https:\/\/classroom\.google\.com\//.test(u)) return bad('Classroom link must start with https://classroom.google.com/'); await supabase.rpc('cc_set', { k, p_slug: course.slug, p_url: u }); course.classroom_url = u; }
     revalidatePath('/'); revalidatePath('/courses'); revalidatePath('/courses/' + course.slug);
     return NextResponse.json({ course });
   }

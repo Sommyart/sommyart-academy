@@ -19,6 +19,7 @@ export default function CoursesTab({ courses: init, setMsg }) {
       <div><label>Status</label><select {...f('status')}><option value="open">Open for enrolment</option><option value="soon">Coming soon</option><option value="unavailable">Temporarily unavailable</option><option value="hidden">Hidden from site</option></select></div>
       <div><label>Duration (optional, only if confirmed)</label><input {...f('duration')} placeholder="e.g. 4 weeks" /></div>
     </div>
+    <label>Google Classroom link (optional, only shown to enrolled students on this course page)</label><input {...f('classroom_url')} placeholder="https://classroom.google.com/c/..." />
     <label>Schedule (optional, only if confirmed)</label><input {...f('schedule')} placeholder="e.g. Saturdays, 10am WAT" />
     <label>Short summary (course card)</label><textarea rows={2} {...f('summary')} />
     <label>Course overview</label><textarea rows={4} {...f('what')} />
