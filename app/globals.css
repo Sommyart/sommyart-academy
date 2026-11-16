@@ -477,3 +477,12 @@ section{padding:110px 0}
 .lms-dot{flex:none;width:26px;height:26px;border-radius:50%;background:#EEEDF8;color:#3B3591;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}.lms-dot.ok{background:#11834a;color:#fff}
 .lms-lt{display:flex;flex-direction:column;gap:2px}.lms-lt small{font-weight:400;color:#5B5880;font-size:12px}
 @media(max-width:900px){.lms{grid-template-columns:1fr}.lms-side{position:static}}
+
+/* ===== Launchpad scholarship ===== */
+.lp-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.lp-facts div{background:#fff;border:1px solid #E6E4F5;border-radius:16px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.lp-facts b{font-size:28px;color:#3B3591}.lp-facts span{font-size:14px;color:#5B5880}
+.lp-steps{grid-template-columns:repeat(4,1fr)!important}
+.lp-note{margin-top:24px;background:#FFF7E8;border:1px solid #F5D9A8;border-radius:14px;padding:16px 18px;font-size:15px;line-height:1.6;color:#5a4300}
+.lp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media(max-width:760px){.lp-facts,.lp-grid{grid-template-columns:1fr}.lp-steps{grid-template-columns:1fr 1fr!important}}

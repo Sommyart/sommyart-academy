@@ -12,7 +12,8 @@ export default async function Page() {
   const me = await getStudent();
   let classrooms = [];
   if (me?.badge) { const s = await getSettings(); classrooms = links(me.badge === 'vip' ? s.vip_links : s.regular_links); }
-  let certs = [];
+  let certs = [], lp = null;
+  if (me) { const t = cookies().get(ST_COOKIE)?.value || ''; const { data: l } = await supabase.rpc('lp_me', { k: process.env.ADMIN_KEY, p_token: t }); lp = l || null; if (lp) classrooms = []; }
   if (me) { const { data } = await supabase.rpc('cert_mine', { k: process.env.ADMIN_KEY, p_token: cookies().get(ST_COOKIE)?.value || '' }); certs = data || []; }
-  return (<div className="page"><Nav />{me ? <StudentDash me={me} classrooms={classrooms} certs={certs} /> : <Auth />}<Chat /></div>);
+  return (<div className="page"><Nav />{me ? <StudentDash me={me} classrooms={classrooms} certs={certs} lp={lp} /> : <Auth />}<Chat /></div>);
 }

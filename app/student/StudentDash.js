@@ -5,7 +5,7 @@ import { uploadFile } from '@/lib/upload';
 import Icon from '@/components/Icon';
 const call = async (body) => { const r = await fetch('/api/student', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Something went wrong'); return j; };
 export const Badge = ({ b }) => b ? <span className={'sbadge ' + b}><Icon name={b === 'vip' ? 'Sparkles' : 'GraduationCap'} size={14} /> {b === 'vip' ? 'VIP Student' : 'Regular Student'}</span> : <span className="sbadge pending">Badge pending</span>;
-export default function StudentDash({ me, classrooms, certs = [] }) {
+export default function StudentDash({ me, classrooms, certs = [], lp = null }) {
   const [p, setP] = useState({ first: me.first_name, last: me.last_name, photo: me.photo_url || '' });
   const [fb, setFb] = useState(me.feedback || ''); const [msg, setMsg] = useState({}); const [busy, setBusy] = useState('');
   const say = (k, m) => setMsg(x => ({ ...x, [k]: m }));
@@ -32,18 +32,19 @@ export default function StudentDash({ me, classrooms, certs = [] }) {
   return (<div className="wrap sd">
     <div className="sd-head">
       <label className="sd-avatar" title="Change photo">{p.photo ? <img src={opt(p.photo, 256)} alt="" /> : <span>{p.first[0]}{p.last[0]}</span>}<em>{busy === 'photo' ? '…' : <Icon name="ImagePlus" size={16} />}</em><input type="file" accept="image/*" onChange={photo} hidden /></label>
-      <div><h1>Welcome, {p.first} 👋</h1><Badge b={me.badge} />{me.scholarship && <span className="sbadge schol">🎓 Scholarship</span>}{me.bootcamp && <span className="sbadge boot">🏕️ Bootcamp</span>}<p className="note">{me.email}</p></div>
+      <div><h1>Welcome, {p.first} 👋</h1>{lp ? <span className="sbadge schol">🎓 Launchpad Scholar</span> : <><Badge b={me.badge} />{me.scholarship && <span className="sbadge schol">🎓 Scholarship</span>}</>}{me.bootcamp && <span className="sbadge boot">🏕️ Bootcamp</span>}<p className="note">{me.email}</p></div>
       <button className="btn sm" style={{ border: '1px solid #ddd', marginLeft: 'auto' }} onClick={logout}>Log out</button>
     </div>
     {locked && <div className="banner">Your account is active. Our team will confirm your enrollment and assign your badge shortly. You'll get an email when your portal is unlocked.</div>}
     <div className="sd-grid">
       <section className="formcard"><h3><Icon name="PlayCircle" size={20} /> My courses</h3>
-        {locked ? <p className="note">Unlocks when your enrollment is confirmed.</p> : <><p className="note" style={{ marginTop: 0 }}>Watch your lessons here. Your progress is saved, and your certificate is issued automatically when you finish.</p><a className="btn btn-primary sm" href="/learn">Go to my courses →</a></>}
+        {lp ? (lp.access ? <><p className="note" style={{ marginTop: 0 }}>🎓 Launchpad Scholar: your <b>AI Expert in 5 Days Masterclass</b> is open.{lp.until ? ` Finish before ${new Date(lp.until).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} to earn your certificate.` : ''}</p><a className="btn btn-primary sm" href="/learn">Go to my course →</a></> : <p className="note" style={{ marginTop: 0 }}>🎓 Welcome, Launchpad Scholar! Your course opens after the onboarding session. We'll email you the date.</p>)
+          : locked ? <p className="note">Unlocks when your enrollment is confirmed.</p> : <><p className="note" style={{ marginTop: 0 }}>Watch your lessons here. Your progress is saved, and your certificate is issued automatically when you finish.</p><a className="btn btn-primary sm" href="/learn">Go to my courses →</a></>}
       </section>
-      <section className="formcard"><h3><Icon name="BookOpen" size={20} /> My classrooms</h3>
+      {!lp && <section className="formcard"><h3><Icon name="BookOpen" size={20} /> My classrooms</h3>
         {locked ? <p className="note">Unlocks when your badge is assigned.</p> : classrooms.map((l, i) => <a key={l} className="btn btn-dark sm" style={{ margin: '8px 8px 0 0' }} href={l} target="_blank" rel="noreferrer">Classroom {classrooms.length > 1 ? i + 1 : ''} →</a>)}
         {me.badge === 'vip' && <p className="note">VIP: masterclasses, PDFs and new courses are inside your classrooms.</p>}
-      </section>
+      </section>}
       <section className="formcard"><h3><Icon name="GraduationCap" size={20} /> My certificates</h3>
         {certs.length ? <><p>🎉 Congratulations! Open a certificate, tap <b>Download / Print</b>, then choose <b>Save as PDF</b>.</p>{certs.map(c => <div key={c.code} style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', padding: '10px 0', borderTop: '1px solid #eee' }}><span><b>{c.course}</b><br /><small style={{ color: '#666' }}>{new Date(c.issued_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · ID {c.code}</small></span><a className="btn btn-primary sm" href={`/certificate/${c.code}`} target="_blank" rel="noreferrer">View &amp; download</a></div>)}</>
         : me.certificate_url ? <><p>🎉 Congratulations on completing your course!</p><a className="btn btn-primary sm" href={me.certificate_url} target="_blank" rel="noreferrer">Download / print certificate</a></>
