@@ -2,28 +2,42 @@
 import { useEffect, useState } from 'react';
 const api = async (body) => { const r = await fetch('/api/admin/lms', { method: 'POST', body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Failed'); return j; };
 const durationOf = (file) => new Promise(res => { const el = document.createElement('video'); el.preload = 'metadata'; el.onloadedmetadata = () => { res(el.duration || 0); URL.revokeObjectURL(el.src); }; el.onerror = () => res(0); el.src = URL.createObjectURL(file); });
-const put = (url, file, onP) => new Promise((res, rej) => { const x = new XMLHttpRequest(); x.open('PUT', url); x.setRequestHeader('Content-Type', file.type); x.upload.onprogress = e => e.lengthComputable && onP(Math.round(e.loaded / e.total * 100)); x.onload = () => x.status < 300 ? res() : rej(new Error('Upload failed (' + x.status + ')')); x.onerror = () => rej(new Error('Upload failed. Check your connection, or tap "Allow video uploads" once.')); x.send(file); });
+const put = (url, file, onP) => new Promise((res, rej) => { const x = new XMLHttpRequest(); x.open('PUT', url); x.setRequestHeader('Content-Type', file.type); x.upload.onprogress = e => e.lengthComputable && onP(e.loaded, e.total); x.onload = () => x.status < 300 ? res() : rej(new Error('Upload failed (' + x.status + ')')); x.onerror = () => rej(new Error('Upload failed. Check your connection, or tap "Allow video uploads" once.')); x.send(file); });
+const mb = (b) => (b / 1048576).toFixed(b > 104857600 ? 0 : 1) + ' MB';
+const eta = (s) => !isFinite(s) || s <= 0 ? '' : s < 60 ? `${Math.ceil(s)}s left` : `${Math.floor(s / 60)}m ${Math.round(s % 60)}s left`;
+function UploadBar({ u }) {
+  if (!u) return null;
+  return (<div style={{ margin: '12px 0', padding: 14, border: '1px solid #E6E4F5', borderRadius: 12, background: '#FAFAFE' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 14, marginBottom: 8, flexWrap: 'wrap' }}><b style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>⬆️ {u.name}</b><b style={{ color: '#3B3591' }}>{u.pct}%</b></div>
+    <div className="lms-bar" style={{ height: 12 }}><i style={{ width: u.pct + '%' }} /></div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 13, color: '#5B5880', marginTop: 8, flexWrap: 'wrap' }}>
+      <span>{mb(u.loaded)} of {mb(u.total)}{u.speed ? ` · ${mb(u.speed)}/s` : ''}</span><span>{u.pct >= 100 ? 'Finishing…' : eta((u.total - u.loaded) / (u.speed || 1e-9))}</span></div>
+    <small style={{ display: 'block', marginTop: 6, color: '#b26a00' }}>Keep this page open until the upload finishes.</small>
+  </div>);
+}
 const fmt = (s) => s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : '';
 const blank = { id: '', title: '', slug: '', description: '', cert_name: '', access: 'all', published: false };
 export default function LmsTab({ setMsg }) {
   const [data, setData] = useState(null); const [cid, setCid] = useState(''); const [edit, setEdit] = useState(null); const [busy, setBusy] = useState('');
-  const [nl, setNl] = useState({ title: '', description: '' }); const [file, setFile] = useState(null); const [pct, setPct] = useState(0); const [prog, setProg] = useState(null);
+  const [nl, setNl] = useState({ title: '', description: '' }); const [file, setFile] = useState(null); const [up, setUp] = useState(null); const [prog, setProg] = useState(null);
+  const track = (name) => { const t0 = Date.now(); setUp({ name, pct: 0, loaded: 0, total: 0, speed: 0 }); return (loaded, total) => { const sec = (Date.now() - t0) / 1000; setUp({ name, loaded, total, pct: Math.min(100, Math.round(loaded / total * 100)), speed: sec > 1 ? loaded / sec : 0 }); }; };
+  useEffect(() => { if (!up) return; const h = (e) => { e.preventDefault(); e.returnValue = ''; }; window.addEventListener('beforeunload', h); return () => window.removeEventListener('beforeunload', h); }, [!!up]);
   const load = async () => { try { const { data } = await api({ type: 'get' }); setData(data); } catch (x) { setMsg('✗ ' + x.message); } };
   useEffect(() => { load(); }, []);
   if (!data) return <p>Loading courses…</p>;
   const course = data.courses.find(c => c.id === cid); const lessons = data.lessons.filter(l => l.course_id === cid).sort((a, b) => a.position - b.position);
   async function saveCourse(e) { e.preventDefault(); setBusy('c'); try { const { course: c } = await api({ type: 'course-save', course: edit }); await load(); setCid(c.id); setEdit(null); setMsg('✓ Course saved.'); } catch (x) { setMsg('✗ ' + x.message); } setBusy(''); }
   async function addLesson(e) {
-    e.preventDefault(); if (!nl.title.trim()) return; setBusy('l'); setPct(0);
+    e.preventDefault(); if (!nl.title.trim()) return; setBusy('l');
     try {
       let video_key = '', duration_sec = '';
-      if (file) { duration_sec = String(await durationOf(file) || ''); const u = await api({ type: 'upload-url', course: cid, mime: file.type, size: file.size }); await put(u.put, file, setPct); video_key = u.key; }
+      if (file) { duration_sec = String(await durationOf(file) || ''); const u = await api({ type: 'upload-url', course: cid, mime: file.type, size: file.size }); await put(u.put, file, track(file.name)); video_key = u.key; }
       await api({ type: 'lesson-save', lesson: { course_id: cid, ...nl, video_key, duration_sec } }); setNl({ title: '', description: '' }); setFile(null); e.target.reset(); await load(); setMsg('✓ Lesson added.');
-    } catch (x) { setMsg('✗ ' + x.message); } setBusy(''); setPct(0);
+    } catch (x) { setMsg('✗ ' + x.message); } setBusy(''); setUp(null);
   }
   async function replaceVideo(l, f) {
-    if (!f) return; setBusy(l.id); setPct(0);
-    try { const d = String(await durationOf(f) || ''); const u = await api({ type: 'upload-url', course: cid, mime: f.type, size: f.size }); await put(u.put, f, setPct); await api({ type: 'lesson-save', lesson: { ...l, video_key: u.key, duration_sec: d } }); await load(); setMsg('✓ Video uploaded.'); } catch (x) { setMsg('✗ ' + x.message); } setBusy(''); setPct(0);
+    if (!f) return; setBusy(l.id);
+    try { const d = String(await durationOf(f) || ''); const u = await api({ type: 'upload-url', course: cid, mime: f.type, size: f.size }); await put(u.put, f, track(f.name)); await api({ type: 'lesson-save', lesson: { ...l, video_key: u.key, duration_sec: d } }); await load(); setMsg('✓ Video uploaded.'); } catch (x) { setMsg('✗ ' + x.message); } setBusy(''); setUp(null);
   }
   const doAct = async (body, ok) => { try { await api(body); await load(); if (ok) setMsg(ok); } catch (x) { setMsg('✗ ' + x.message); } };
   return (<div>
@@ -50,12 +64,13 @@ export default function LmsTab({ setMsg }) {
       <div className="formcard" style={{ maxWidth: 860, marginTop: 16 }}>
         <b>{course.title}</b> <span className={'pill ' + (course.published ? 'approved' : 'pending')}>{course.published ? 'Published' : 'Draft'}</span> <small style={{ color: '#666' }}>· {course.access === 'vip' ? 'VIP only' : 'All enrolled students'} · certificate: “{course.cert_name}” · /learn/{course.slug}</small>
         <h4 style={{ margin: '16px 0 8px' }}>Lessons ({lessons.length})</h4>
+        <UploadBar u={up} />
         {lessons.map((l, i) => <div key={l.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 0', borderTop: '1px solid #f0f0f0', flexWrap: 'wrap' }}>
           <b style={{ width: 24 }}>{i + 1}.</b>
           <span style={{ flex: '1 1 240px' }}>{l.title}<br /><small style={{ color: l.video_key ? '#11834a' : '#b26a00' }}>{l.video_key ? `🎬 Video uploaded ${fmt(l.duration_sec)}` : '⚠️ No video yet'}</small></span>
           <button className="btn sm" style={{ border: '1px solid #ddd' }} disabled={i === 0} onClick={() => doAct({ type: 'lesson-move', id: l.id, dir: -1 })}>↑</button>
           <button className="btn sm" style={{ border: '1px solid #ddd' }} disabled={i === lessons.length - 1} onClick={() => doAct({ type: 'lesson-move', id: l.id, dir: 1 })}>↓</button>
-          <label className="btn btn-dark sm" style={{ cursor: 'pointer' }}>{busy === l.id ? `Uploading ${pct}%` : l.video_key ? 'Replace video' : 'Upload video'}<input type="file" accept="video/mp4,video/webm,video/quicktime" hidden disabled={!!busy} onChange={e => replaceVideo(l, e.target.files[0])} /></label>
+          <label className="btn btn-dark sm" style={{ cursor: 'pointer' }}>{busy === l.id ? `Uploading ${up?.pct ?? 0}%` : l.video_key ? 'Replace video' : 'Upload video'}<input type="file" accept="video/mp4,video/webm,video/quicktime" hidden disabled={!!busy} onChange={e => replaceVideo(l, e.target.files[0])} /></label>
           <button className="btn sm" style={{ border: '1px solid #ddd' }} onClick={async () => { const t = prompt('Lesson title', l.title); if (t === null) return; const d = prompt('Lesson notes (optional)', l.description || ''); await doAct({ type: 'lesson-save', lesson: { ...l, title: t, description: d ?? l.description } }, '✓ Lesson updated.'); }}>Edit</button>
           <button className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d' }} onClick={() => confirm(`Delete lesson "${l.title}"? Students' progress on it will be lost.`) && doAct({ type: 'lesson-delete', id: l.id }, '✓ Lesson deleted.')}>Delete</button>
         </div>)}
@@ -65,7 +80,7 @@ export default function LmsTab({ setMsg }) {
           <textarea rows={2} placeholder="Notes for students (optional)" value={nl.description} onChange={e => setNl({ ...nl, description: e.target.value })} style={{ marginTop: 8 }} />
           <input type="file" accept="video/mp4,video/webm,video/quicktime" onChange={e => setFile(e.target.files[0] || null)} style={{ marginTop: 8 }} />
           <p className="note">Tip: export videos at 720p (MP4) to keep them small and smooth on mobile data. Keep this page open until the upload finishes.</p>
-          <button className="btn btn-primary sm" disabled={busy === 'l' || !nl.title.trim()}>{busy === 'l' ? (file ? `Uploading ${pct}%…` : 'Saving…') : '+ Add lesson'}</button>
+          <button className="btn btn-primary sm" disabled={busy === 'l' || !nl.title.trim()}>{busy === 'l' ? (file ? `Uploading ${up?.pct ?? 0}%…` : 'Saving…') : '+ Add lesson'}</button>
         </form>
       </div>
       <div className="formcard" style={{ maxWidth: 860, marginTop: 16 }}>
