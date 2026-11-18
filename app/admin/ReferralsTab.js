@@ -5,6 +5,19 @@ const act = async (body) => { const r = await fetch('/api/admin/action', { metho
 export default function ReferralsTab({ data, setMsg }) {
   const [payouts, setPayouts] = useState(data.payouts); const [busy, setBusy] = useState(''); const [q, setQ] = useState('');
   const pending = payouts.filter(p => p.status === 'pending');
+  async function paystack(p) {
+    setBusy(p.id); setMsg('');
+    try {
+      const c = await act({ type: 'payout-check', id: p.id });
+      const low = c.balance !== null && c.balance < p.amount;
+      if (!confirm(`Send ${N(p.amount)} from your Paystack balance?\n\nPaystack verified this account:\n${c.resolved_name}\n${c.bank} · ${p.account_number}\n\nName they typed: ${p.account_name}\nYour Paystack balance: ${c.balance === null ? 'unknown' : N(c.balance)}${low ? '\n\n⚠️ Your balance is too low. Top up Paystack first or the transfer will fail.' : ''}\n\nOnly continue if the verified name matches the referrer.`)) { setBusy(''); return; }
+      let r = await act({ type: 'payout-send', id: p.id, bank_code: c.bank_code, account_name: c.resolved_name });
+      if (r.state === 'otp') { const otp = prompt('Paystack sent you a one-time code (OTP) to approve this transfer. Enter it here:'); if (!otp) { setMsg('Transfer started but not approved. You can finish it in your Paystack dashboard under Transfers.'); setBusy(''); return; } r = await act({ type: 'payout-otp', id: p.id, transfer_code: r.transfer_code, otp }); }
+      if (r.payout) { setPayouts(ps => ps.map(x => x.id === p.id ? { ...x, ...r.payout } : x)); setMsg(`✓ ${N(p.amount)} sent to ${c.resolved_name} via Paystack. Receipt ${r.payout.receipt_no} emailed.`); }
+      else setMsg(`⏳ Paystack is processing the ${N(p.amount)} transfer to ${c.resolved_name}. It will be marked paid automatically when Paystack confirms it.`);
+    } catch (x) { setMsg('✗ ' + x.message); }
+    setBusy('');
+  }
   async function done(p, status) {
     const verb = status === 'rejected' ? 'Reject' : p.kind === 'withdraw' ? `Confirm you've transferred ${N(p.amount)} to ${p.account_name}` : `Confirm ${N(p.amount)} was applied to ${p.name}'s fee`;
     if (!confirm(verb + '?')) return; setBusy(p.id);
@@ -25,7 +38,7 @@ export default function ReferralsTab({ data, setMsg }) {
       <div><b>{p.name}</b> <span className="pill pending">{p.kind === 'withdraw' ? 'withdrawal' : 'use for course fee'}</span> <b style={{ fontSize: 18, marginLeft: 6 }}>{N(p.amount)}</b>
         <div style={{ fontSize: 13, color: '#555' }}>WhatsApp {p.whatsapp} · {p.email} · {new Date(p.created_at).toLocaleString('en-NG')}</div>
         {p.kind === 'withdraw' && <div style={{ fontSize: 14, marginTop: 6, background: '#F7FAFF', padding: '8px 12px', borderRadius: 10 }}>🏦 <b>{p.bank_name}</b> · <b>{p.account_number}</b> · {p.account_name}</div>}</div>
-      <div className="acts"><button className="btn btn-primary sm" disabled={busy === p.id} onClick={() => done(p, 'paid')}>{p.kind === 'withdraw' ? 'Mark paid' : 'Mark applied'}</button><button className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d' }} disabled={busy === p.id} onClick={() => done(p, 'rejected')}>Reject</button></div>
+      <div className="acts">{p.kind === 'withdraw' && <button className="btn btn-primary sm" disabled={busy === p.id} onClick={() => paystack(p)}>{busy === p.id ? 'Working…' : '💸 Pay via Paystack'}</button>}<button className={p.kind === 'withdraw' ? 'btn btn-dark sm' : 'btn btn-primary sm'} disabled={busy === p.id} onClick={() => done(p, 'paid')}>{p.kind === 'withdraw' ? 'Mark paid (paid manually)' : 'Mark applied'}</button><button className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d' }} disabled={busy === p.id} onClick={() => done(p, 'rejected')}>Reject</button></div>
     </div>) : <p className="note" style={{ marginBottom: 10 }}>No pending requests.</p>}
     <h3 style={{ margin: '24px 0 10px' }}>Referrers</h3>
     <input placeholder="Search name, WhatsApp, email or code" value={q} onChange={e => setQ(e.target.value)} style={{ marginBottom: 12 }} />

@@ -146,6 +146,18 @@ export async function POST(req) {
     }
     return NextResponse.json({ job, count });
   }
+  if (b.type === 'payout-check' || b.type === 'payout-send' || b.type === 'payout-otp') {
+    const { payoutCheck, payoutSend, payoutOtp, payoutMarkPaid } = await import('@/lib/payout');
+    const { data: rd } = await supabase.rpc('admin_referrers', { k });
+    const p = (rd?.payouts || []).find(x => x.id === b.id);
+    if (!p || p.status !== 'pending' || p.kind !== 'withdraw') return bad('This request is not a pending withdrawal');
+    try {
+      if (b.type === 'payout-check') return NextResponse.json(await payoutCheck(p));
+      const r = b.type === 'payout-otp' ? await payoutOtp(b.transfer_code, b.otp) : await payoutSend(p, b.bank_code, b.account_name);
+      let payout = null; if (r.state === 'success') payout = await payoutMarkPaid(p.id);
+      return NextResponse.json({ ...r, payout });
+    } catch (e) { return bad(e.message); }
+  }
   if (b.type === 'payout') {
     const { data: p, error } = await supabase.rpc('admin_payout', { k, p_id: b.id, p_status: b.status });
     if (error || !p) return bad('Could not update (maybe already processed)');
