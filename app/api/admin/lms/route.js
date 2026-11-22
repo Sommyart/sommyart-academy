@@ -22,6 +22,17 @@ export async function POST(req) {
     case 'lesson-save': { if (!b.lesson?.title?.trim()) return bad('Lesson title is required'); return out(await rpc('lms_lesson_save', { p: b.lesson }), 'lesson'); }
     case 'lesson-delete': return out(await rpc('lms_lesson_delete', { p_id: b.id }), 'ok');
     case 'lesson-move': return out(await rpc('lms_lesson_move', { p_id: b.id, p_dir: b.dir < 0 ? -1 : 1 }), 'ok');
+    case 'quiz-save': {
+      const qs = Array.isArray(b.questions) ? b.questions.slice(0, 30) : null; if (!qs) return bad('Bad quiz');
+      const clean = [];
+      for (const [i, q] of qs.entries()) {
+        const opts = (q.options || []).map(o => String(o || '').trim()).slice(0, 6); const ans = [...new Set((q.answer || []).filter(n => Number.isInteger(n) && n >= 0 && n < opts.length))];
+        if (!String(q.q || '').trim() || opts.length < 2 || opts.some(o => !o)) return bad(`Question ${i + 1}: fill in the question and every option`);
+        if (!ans.length) return bad(`Question ${i + 1}: tick at least one correct answer`);
+        clean.push({ q: String(q.q).trim().slice(0, 500), options: opts.map(o => o.slice(0, 300)), answer: ans.sort(), multi: ans.length > 1 || !!q.multi, why: String(q.why || '').trim().slice(0, 500) });
+      }
+      return out(await rpc('lms_quiz_save', { p_lesson: b.id, p_questions: clean }), 'ok');
+    }
     case 'progress': return out(await rpc('lms_admin_progress', { p_course: b.id }), 'rows');
     case 'upload-url': {
       if (!r2Ready()) return bad('Cloudflare storage is not configured', 503);

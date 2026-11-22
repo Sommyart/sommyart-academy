@@ -18,9 +18,35 @@ function UploadBar({ u }) {
 const fmt = (s) => s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : '';
 const blank = { id: '', title: '', slug: '', description: '', cert_name: '', access: 'all', published: false, open_from: '' };
 const day = (t) => t ? new Date(t).toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }) : '';
+const blankQ = () => ({ q: '', options: ['', '', '', ''], answer: [], why: '' });
+function QuizEditor({ lesson, onClose, onSaved, setMsg }) {
+  const [qs, setQs] = useState(lesson.quiz?.length ? lesson.quiz.map(q => ({ ...q, options: [...q.options], answer: [...q.answer] })) : Array.from({ length: 7 }, blankQ));
+  const [busy, setBusy] = useState(false); const [json, setJson] = useState(''); const [showJson, setShowJson] = useState(false);
+  const upd = (i, f) => setQs(x => x.map((q, j) => j === i ? f({ ...q, options: [...q.options], answer: [...q.answer] }) : q));
+  async function save(list) {
+    setBusy(true); try { await api({ type: 'quiz-save', id: lesson.id, questions: list }); setMsg(list.length ? `✓ Quiz saved (${list.length} questions).` : '✓ Quiz removed.'); onSaved(); } catch (x) { setMsg('✗ ' + x.message); } setBusy(false);
+  }
+  return (<div className="formcard" style={{ maxWidth: 860, marginTop: 16, border: '2px solid #C9C4F0' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}><b>📝 Quiz for: {lesson.title}</b><div style={{ display: 'flex', gap: 6 }}><button className="btn sm" style={{ border: '1px solid #ddd' }} onClick={() => setShowJson(!showJson)}>Paste questions</button><button className="btn sm" style={{ border: '1px solid #ddd' }} onClick={onClose}>Close</button></div></div>
+    <p className="note">Tick the correct option(s). Tick more than one to make it a "choose all that apply" question. Students see their score and the right answers after submitting.</p>
+    {showJson && <div><textarea rows={6} placeholder='Paste the quiz text Claude gives you (JSON)' value={json} onChange={e => setJson(e.target.value)} /><button className="btn btn-dark sm" style={{ marginTop: 6 }} onClick={() => { try { const v = JSON.parse(json); if (!Array.isArray(v)) throw 0; setQs(v.map(q => ({ q: q.q || '', options: [...(q.options || ['', '', '', ''])], answer: [...(q.answer || [])], why: q.why || '' }))); setShowJson(false); } catch { setMsg('✗ That text is not valid quiz JSON.'); } }}>Load</button></div>}
+    {qs.map((q, i) => <div key={i} style={{ borderTop: '1px solid #eee', padding: '12px 0' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}><b style={{ width: 26 }}>{i + 1}.</b><input value={q.q} placeholder="Question" onChange={e => upd(i, x => ({ ...x, q: e.target.value }))} /><button className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d' }} onClick={() => setQs(x => x.filter((_, j) => j !== i))}>✕</button></div>
+      {q.options.map((o, oi) => <div key={oi} style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '6px 0 0 34px' }}>
+        <input type="checkbox" title="Correct answer" style={{ width: 20, height: 20, flex: 'none' }} checked={q.answer.includes(oi)} onChange={() => upd(i, x => ({ ...x, answer: x.answer.includes(oi) ? x.answer.filter(v => v !== oi) : [...x.answer, oi] }))} />
+        <b style={{ width: 18 }}>{'ABCD'[oi]}</b><input value={o} placeholder={`Option ${'ABCD'[oi]}`} onChange={e => upd(i, x => { x.options[oi] = e.target.value; return x; })} /></div>)}
+      <input style={{ margin: '6px 0 0 34px', width: 'calc(100% - 34px)' }} value={q.why || ''} placeholder="Short explanation shown after submitting (optional)" onChange={e => upd(i, x => ({ ...x, why: e.target.value }))} />
+    </div>)}
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+      <button className="btn sm" style={{ border: '1px solid #ddd' }} onClick={() => setQs(x => [...x, blankQ()])}>+ Add question</button>
+      <button className="btn btn-primary sm" disabled={busy} onClick={() => save(qs)}>{busy ? 'Saving…' : 'Save quiz'}</button>
+      {lesson.quiz?.length > 0 && <button className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d', marginLeft: 'auto' }} disabled={busy} onClick={() => confirm('Remove this quiz? Students will no longer need it to unlock the next lesson.') && save([])}>Remove quiz</button>}
+    </div>
+  </div>);
+}
 export default function LmsTab({ setMsg }) {
   const [data, setData] = useState(null); const [cid, setCid] = useState(''); const [edit, setEdit] = useState(null); const [busy, setBusy] = useState('');
-  const [nl, setNl] = useState({ title: '', description: '' }); const [file, setFile] = useState(null); const [up, setUp] = useState(null); const [prog, setProg] = useState(null);
+  const [nl, setNl] = useState({ title: '', description: '' }); const [file, setFile] = useState(null); const [up, setUp] = useState(null); const [quizFor, setQuizFor] = useState(null); const [prog, setProg] = useState(null);
   const track = (name) => { const t0 = Date.now(); setUp({ name, pct: 0, loaded: 0, total: 0, speed: 0 }); return (loaded, total) => { const sec = (Date.now() - t0) / 1000; setUp({ name, loaded, total, pct: Math.min(100, Math.round(loaded / total * 100)), speed: sec > 1 ? loaded / sec : 0 }); }; };
   useEffect(() => { if (!up) return; const h = (e) => { e.preventDefault(); e.returnValue = ''; }; window.addEventListener('beforeunload', h); return () => window.removeEventListener('beforeunload', h); }, [!!up]);
   const load = async () => { try { const { data } = await api({ type: 'get' }); setData(data); } catch (x) { setMsg('✗ ' + x.message); } };
@@ -73,9 +99,11 @@ export default function LmsTab({ setMsg }) {
           <button className="btn sm" style={{ border: '1px solid #ddd' }} disabled={i === 0} onClick={() => doAct({ type: 'lesson-move', id: l.id, dir: -1 })}>↑</button>
           <button className="btn sm" style={{ border: '1px solid #ddd' }} disabled={i === lessons.length - 1} onClick={() => doAct({ type: 'lesson-move', id: l.id, dir: 1 })}>↓</button>
           <label className="btn btn-dark sm" style={{ cursor: 'pointer' }}>{busy === l.id ? `Uploading ${up?.pct ?? 0}%` : l.video_key ? 'Replace video' : 'Upload video'}<input type="file" accept="video/mp4,video/webm,video/quicktime" hidden disabled={!!busy} onChange={e => replaceVideo(l, e.target.files[0])} /></label>
+          <button className="btn sm" style={{ border: '1px solid #c9c4f0', color: '#3B3591' }} onClick={() => setQuizFor(l.id)}>📝 Quiz{l.quiz?.length ? ` (${l.quiz.length})` : ''}</button>
           <button className="btn sm" style={{ border: '1px solid #ddd' }} onClick={async () => { const t = prompt('Lesson title', l.title); if (t === null) return; const d = prompt('Lesson notes (optional)', l.description || ''); await doAct({ type: 'lesson-save', lesson: { ...l, title: t, description: d ?? l.description } }, '✓ Lesson updated.'); }}>Edit</button>
           <button className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d' }} onClick={() => confirm(`Delete lesson "${l.title}"? Students' progress on it will be lost.`) && doAct({ type: 'lesson-delete', id: l.id }, '✓ Lesson deleted.')}>Delete</button>
         </div>)}
+        {quizFor && lessons.find(x => x.id === quizFor) && <QuizEditor key={quizFor} lesson={lessons.find(x => x.id === quizFor)} setMsg={setMsg} onClose={() => setQuizFor(null)} onSaved={async () => { await load(); setQuizFor(null); }} />}
         <form onSubmit={addLesson} style={{ borderTop: '1px solid #eee', marginTop: 10, paddingTop: 12 }}>
           <label>Add a lesson</label>
           <input placeholder="Lesson title, e.g. Day 1: Introduction to AI tools" value={nl.title} onChange={e => setNl({ ...nl, title: e.target.value })} />

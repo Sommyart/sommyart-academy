@@ -526,3 +526,18 @@ section{padding:110px 0}
 @keyframes botBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.6)}50%{opacity:.85;box-shadow:0 0 0 5px rgba(34,197,94,0)}}
 @media (prefers-reduced-motion:reduce){.bot-fab,.bot-ring,.bot-badge,.bot-dot{animation:none!important}.bot-ring{display:none}}
 @media(max-width:600px){.bot-fab{width:56px;height:56px;right:14px;bottom:14px}.bot-fab img{width:50px;height:50px}}
+
+/* ===== LMS quizzes ===== */
+.quiz{margin-top:22px;background:#fff;border:1px solid #E6E4F5;border-radius:16px;padding:18px}
+.quiz-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+.quiz-head b{font-size:18px;color:#2A2570}.quiz-head small{display:block;color:#5B5880;font-size:13px}
+.quiz-score{text-align:center;background:#F4F2FF;border-radius:14px;padding:8px 16px}.quiz-score b{font-size:26px;color:#D63AAF}.quiz-score small{display:block;font-size:12px;color:#5B5880}
+.quiz-q{border-top:1px solid #eee;padding:14px 0}.quiz-q p{margin:0 0 10px}.quiz-q em{font-size:13px;color:#7B3FE4;font-style:normal}
+.quiz-o{display:flex;gap:10px;align-items:center;padding:10px 12px;margin:6px 0;border:1px solid #E6E4F5;border-radius:12px;cursor:pointer;font-weight:400}
+.quiz-o input{width:18px;height:18px;flex:none;accent-color:#3B3591}.quiz-o.sel{border-color:#3B3591;background:#F4F2FF}
+.quiz-l{flex:none;width:26px;height:26px;border-radius:50%;background:#EEEDF8;color:#3B3591;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.quiz-o.right{border-color:#11834a;background:#E9FBEF}.quiz-o.wrong{border-color:#c0262d;background:#FDECEC}.quiz-tick{margin-left:auto;color:#11834a;font-weight:700}
+.quiz-q.ok>p b{color:#11834a}.quiz-q.bad>p b{color:#c0262d}
+.quiz-why{font-size:14px;color:#444;background:#FFF7E8;border-radius:10px;padding:8px 12px;margin-top:8px!important}
+.quiz-lockd{margin-top:18px;padding:12px 14px;background:#F4F2FF;border-radius:12px;font-size:14px;color:#3B3591}
+.lms-list button.lockd{opacity:.55;cursor:not-allowed}
