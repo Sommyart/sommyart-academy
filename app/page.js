@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import Reviews from '@/components/Reviews';
 import HeroVideo from '@/components/HeroVideo';
 import Pricing from '@/components/Pricing';
+import Countdown from '@/components/Countdown';
 export const revalidate = 60;
 
 const POPULAR = [
@@ -28,6 +29,8 @@ const HOW = [
 ];
 
 export default async function Home() {
+  const { data: mcp } = await supabase.rpc('mcp_public', { p_slug: 'ai-creative-builder' });
+  const mcFull = mcp?.price || 25000, mcNow = mcp?.current_price || mcFull, mcEarly = mcNow < mcFull && mcp?.early_until;
   const { data: reviews } = await supabase.from('testimonials_public').select('*').order('created_at', { ascending: false }).limit(6);
   return (<>
     <Nav /><Reveal />
@@ -45,7 +48,7 @@ export default async function Home() {
 
     <section className="mc-promo"><div className="wrap"><a href="/masterclass/ai-creative-builder" className="mc-promo-card">
       <img src="/masterclass/motion-graphics.jpg" alt="" /><img src="/masterclass/websites.jpg" alt="" />
-      <div><span className="label" style={{ color: '#D63AAF' }}>NEW · LIVE MASTERCLASS</span><h2>AI Creative Builder Masterclass</h2><p>Motion graphics + professional websites, all with AI. Live on Google Meet, certificate included.</p><span className="btn btn-primary sm">Register · ₦25,000 →</span></div>
+      <div><span className="label" style={{ color: '#D63AAF' }}>NEW · LIVE MASTERCLASS</span><h2>AI Creative Builder Masterclass</h2><p>Motion graphics + professional websites, all with AI. Live on Google Meet, certificate included.</p>{mcEarly && <Countdown until={mcp.early_until} label="Early bird ends in" compact />}<span className="btn btn-primary sm">{mcEarly ? <>Early bird · ₦{mcNow.toLocaleString('en-NG')} <s style={{ opacity: .7, marginLeft: 6 }}>₦{mcFull.toLocaleString('en-NG')}</s></> : `Register · ₦${mcFull.toLocaleString('en-NG')}`} →</span></div>
     </a></div></section>
 
     <section id="courses"><div className="wrap center">

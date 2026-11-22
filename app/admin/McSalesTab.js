@@ -19,6 +19,10 @@ export default function McSalesTab({ setMsg }) {
         <div><label>Price (₦)</label><input type="number" value={p.price} onChange={e => setEd({ ...p, price: e.target.value })} /></div>
         <div><label>Date & time shown</label><input value={p.date_text} onChange={e => setEd({ ...p, date_text: e.target.value })} /></div>
       </div>
+      <div className="lp-grid">
+        <div><label>Early bird price (₦, optional)</label><input type="number" value={p.early_price ?? ''} onChange={e => setEd({ ...p, early_price: e.target.value })} /></div>
+        <div><label>Early bird ends (end of this day, Lagos time)</label><input type="date" value={p.early_until ? new Date(p.early_until).toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }) : ''} onChange={e => setEd({ ...p, early_until: e.target.value ? e.target.value + 'T23:59:59+01:00' : '' })} /></div>
+      </div>
       <label>WhatsApp group link (emailed after payment)</label><input placeholder="https://chat.whatsapp.com/..." value={p.wa_link || ''} onChange={e => setEd({ ...p, wa_link: e.target.value })} />
       <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontWeight: 400, marginTop: 10 }}><input type="checkbox" style={{ width: 18, height: 18 }} checked={!!p.active} onChange={e => setEd({ ...p, active: e.target.checked })} /> Registration open</label>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
