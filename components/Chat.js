@@ -11,8 +11,13 @@ export default function Chat() {
       <header><span>Sommy AI Guide</span><button onClick={() => setOpen(false)} aria-label="Close">×</button></header>
       <iframe src="https://sommy-ai-guide.lovable.app" title="Sommy AI Guide" allow="microphone; clipboard-write" />
     </div>)}
-    <button className="bot-btn" onClick={() => setOpen(!open)}>
-      <img src="/mascot-girl.webp" alt="" />{open ? 'Close chat' : 'Ask Sommy AI'}
+    <button className={'bot-fab' + (open ? ' open' : '')} onClick={() => setOpen(!open)} aria-label={open ? 'Close chat' : 'Chat with Sommy AI support'} title={open ? 'Close chat' : 'Need help? Chat with Sommy AI'}>
+      <span className="bot-ring" aria-hidden="true" /><span className="bot-ring r2" aria-hidden="true" />
+      <img src="/mascot-girl.webp" alt="" />
+      <span className="bot-badge" aria-hidden="true">{open
+        ? <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        : <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="3" y="13" width="4" height="6" rx="1.5" /><rect x="17" y="13" width="4" height="6" rx="1.5" /><path d="M19 19c0 1.5-1.5 2.5-4 2.5h-2" /></svg>}</span>
+      <span className="bot-dot" aria-hidden="true" />
     </button>
   </>);
 }
