@@ -43,6 +43,11 @@ export default async function Home() {
       </div>
     </header>
 
+    <section className="mc-promo"><div className="wrap"><a href="/masterclass/ai-creative-builder" className="mc-promo-card">
+      <img src="/masterclass/motion-graphics.jpg" alt="" /><img src="/masterclass/websites.jpg" alt="" />
+      <div><span className="label" style={{ color: '#D63AAF' }}>NEW · LIVE MASTERCLASS</span><h2>AI Creative Builder Masterclass</h2><p>Motion graphics + professional websites, all with AI. Live on Google Meet, certificate included.</p><span className="btn btn-primary sm">Register · ₦25,000 →</span></div>
+    </a></div></section>
+
     <section id="courses"><div className="wrap center">
       <h2 className="h2" data-reveal>Popular courses</h2>
       <p className="sub" data-reveal="80">Start with the skills people are paying for.</p>
