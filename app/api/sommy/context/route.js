@@ -18,7 +18,7 @@ export async function GET() {
   for (const p of Object.values(PACKAGES)) L.push(`- ${p.name}: ${naira(p.price)} one-time. ${p.perks.join('; ')}.`);
   const vis = courses.filter(c => c.status !== 'hidden');
   for (const kind of ['core', 'masterclass']) {
-    const list = vis.filter(c => (kind === 'core' ? c.kind !== 'masterclass' : c.kind === 'masterclass'));
+    const list = vis.filter(c => (kind === 'core' ? c.kind !== 'master' : c.kind === 'master'));
     if (!list.length) continue;
     L.push('', kind === 'core' ? 'COURSES (included in Regular and VIP)' : 'SPECIALISED MASTERCLASSES (VIP Package only)');
     for (const c of list) L.push(`- ${c.title} [${STATUS[c.status] || c.status}]: ${c.summary}${c.duration ? ` Duration: ${c.duration}.` : ''} Page: ${SITE}/courses/${c.slug}`);
