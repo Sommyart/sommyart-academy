@@ -9,7 +9,7 @@ import { ytId } from '@/components/PostCard';
 import { supabase } from '@/lib/supabase';
 export const revalidate = 60;
 async function get(slug) { const { data } = await supabase.from('posts').select('*').eq('slug', slug).eq('published', true).maybeSingle(); return data; }
-export async function generateMetadata({ params }) { const p = await get(params.slug); return p ? { title: p.title + ' · Sommyart Academy', description: p.excerpt, openGraph: { images: p.cover_url ? [opt(p.cover_url, 1200, true)] : [] } } : {}; }
+export async function generateMetadata({ params }) { const p = await get(params.slug); return p ? { title: p.title + ' · Sommyart Academy', description: p.excerpt, alternates: { canonical: `/blog/${params.slug}` }, openGraph: { images: p.cover_url ? [opt(p.cover_url, 1200, true)] : [] } } : {}; }
 const esc = (s) => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 function render(md) {
   return md.split(/\n{2,}/).map(b => {

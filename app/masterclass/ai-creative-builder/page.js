@@ -7,6 +7,7 @@ export const revalidate = 60;
 export const metadata = {
   title: 'AI Creative Builder Masterclass · Sommyart Academy',
   description: 'Learn motion graphics and professional website building with AI in one live masterclass. ₦25,000. Certificate included.',
+  alternates: { canonical: '/masterclass/ai-creative-builder' },
   openGraph: { title: 'AI Creative Builder Masterclass', description: 'Motion graphics + professional websites with AI. Live on Google Meet. Certificate included.', images: ['/masterclass/motion-graphics.jpg'] },
 };
 const PARTS = [

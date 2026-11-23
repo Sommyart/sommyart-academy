@@ -6,7 +6,7 @@ import Newsletter from '@/components/Newsletter';
 import PostCard from '@/components/PostCard';
 import { supabase } from '@/lib/supabase';
 export const revalidate = 60;
-export const metadata = { title: 'Blog · Sommyart Academy', description: 'Free AI tutorials, resources and course updates from Sommyart Academy.' };
+export const metadata = { title: 'Blog · Sommyart Academy', description: 'Free AI tutorials, resources and course updates from Sommyart Academy.', alternates: { canonical: '/blog' } };
 export default async function Blog({ searchParams }) {
   const { data } = await supabase.from('posts').select('slug,title,excerpt,cover_url,youtube_url,category').eq('published', true).order('created_at', { ascending: false });
   const posts = data || []; const cats = [...new Set(posts.map(p => p.category))]; const cur = searchParams.c;

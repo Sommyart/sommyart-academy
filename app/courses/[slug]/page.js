@@ -6,7 +6,7 @@ import Icon from '@/components/Icon';
 import ClassroomBtn from './ClassroomBtn';
 import { getCourse, getCourses, STATUS, waAsk } from '@/lib/catalog';
 export const revalidate = 60;
-export async function generateMetadata({ params }) { const c = await getCourse(params.slug); return c ? { title: `${c.title} · Sommyart Academy`, description: c.summary } : {}; }
+export async function generateMetadata({ params }) { const c = await getCourse(params.slug); return c ? { title: `${c.title} · Sommyart Academy`, description: c.summary, alternates: { canonical: `/courses/${params.slug}` } } : {}; }
 export default async function Course({ params }) {
   const c = await getCourse(params.slug); if (!c || c.status === 'hidden') notFound();
   const all = await getCourses(); const related = all.filter(x => x.category === c.category && x.slug !== c.slug && x.status !== 'hidden').slice(0, 3);

@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Refer & Earn 10% · Sommyart Academy',
   description: 'Share Sommyart Academy and earn ₦3,000 per Regular and ₦5,000 per VIP enrollment. Free to join.',
+  alternates: { canonical: '/refer' },
   openGraph: { title: 'Refer & Earn 10% with Sommyart Academy', description: 'Earn ₦3,000 per Regular and ₦5,000 per VIP enrollment you refer.', images: [{ url: '/og-refer.jpg', width: 1200, height: 630 }] },
   twitter: { card: 'summary_large_image', images: ['/og-refer.jpg'] },
 };

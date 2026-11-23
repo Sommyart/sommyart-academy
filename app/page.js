@@ -3,6 +3,7 @@ import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import Chat from '@/components/Chat';
 import Reveal from '@/components/Reveal';
+export const metadata = { alternates: { canonical: '/' } };
 import Newsletter from '@/components/Newsletter';
 import Icon from '@/components/Icon';
 import { supabase } from '@/lib/supabase';

@@ -4,7 +4,7 @@ import Chat from '@/components/Chat';
 import { getCourses } from '@/lib/catalog';
 import CourseBrowser from './CourseBrowser';
 export const revalidate = 60;
-export const metadata = { title: 'Courses · Sommyart Academy', description: '17 practical AI and digital skills courses plus 8 specialised masterclasses: AI art, video, music, prompt engineering, automation, web development and digital marketing.' };
+export const metadata = { title: 'Courses · Sommyart Academy', description: '17 practical AI and digital skills courses plus 8 specialised masterclasses: AI art, video, music, prompt engineering, automation, web development and digital marketing.', alternates: { canonical: '/courses' } };
 export default async function Page() {
   const courses = await getCourses();
   return (<div className="page"><Nav />
