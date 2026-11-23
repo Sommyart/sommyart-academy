@@ -5,6 +5,7 @@ const call = async (body) => { const r = await fetch('/api/refer', { method: 'PO
 const N = (n) => '₦' + Number(n || 0).toLocaleString('en-NG');
 export default function RefDash({ me }) {
   const link = `https://www.sommyartacademy.site/r/${me.code}`;
+  const mcLink = `https://www.sommyartacademy.site/masterclass/ai-creative-builder?ref=${me.code}`;
   const [bank, setBank] = useState({ bank: me.bank_name || '', number: me.account_number || '', accname: me.account_name || '' });
   const [amt, setAmt] = useState(me.balance); const [msg, setMsg] = useState({}); const [busy, setBusy] = useState(''); const [copied, setCopied] = useState('');
   const say = (k, m) => setMsg(x => ({ ...x, [k]: m }));
@@ -42,6 +43,8 @@ export default function RefDash({ me }) {
     <div className="sd-grid">
       <section className="formcard" style={{ gridColumn: '1/-1' }}><h3><Icon name="Share2" size={20} /> Your referral link</h3>
         <div className="reflink"><code>{link}</code><button className="btn btn-dark sm" onClick={() => copy(link, 'l')}>{copied === 'l' ? 'Copied ✓' : 'Copy link'}</button><a className="btn sm" style={{ background: '#25D366', color: '#fff' }} href={wa} target="_blank" rel="noreferrer">Share on WhatsApp</a></div>
+        <div style={{ background: '#FFF4E5', border: '1px solid #FFD8A8', borderRadius: 12, padding: 14, margin: '12px 0' }}><b>🎟 New: AI Creative Builder Masterclass bonus</b><p className="note" style={{ margin: '6px 0 10px' }}>Earn <b>₦500</b> for every early bird (₦5,000) registration and <b>₦3,000</b> for every full price (₦25,000) registration through your link.</p>
+          <div className="reflink"><code>{mcLink}</code><button className="btn btn-dark sm" onClick={() => copy(mcLink, 'm')}>{copied === 'm' ? 'Copied ✓' : 'Copy link'}</button><a className="btn sm" style={{ background: '#25D366', color: '#fff' }} href={`https://wa.me/?text=${encodeURIComponent(`Join the AI Creative Builder Masterclass with Sommyart Academy. Learn motion graphics and website building with AI 👉 ${mcLink}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a></div></div>
         <p className="note">Or tell people your code <b style={{ color: 'var(--purple)', fontSize: 16 }}>{me.code}</b> <a href="#" onClick={(e) => { e.preventDefault(); copy(me.code, 'c'); }}>{copied === 'c' ? 'copied ✓' : 'copy'}</a>. They can also type your WhatsApp number on the payment form.</p>
       </section>
       <section className="formcard" style={{ gridColumn: '1/-1' }}><h3><Icon name="Clapperboard" size={20} /> Promo video</h3>
@@ -73,7 +76,7 @@ export default function RefDash({ me }) {
       </section>
       <section className="formcard" style={{ gridColumn: '1/-1' }}><h3><Icon name="Users" size={20} /> Your referrals</h3>
         {me.referrals.length ? <div style={{ overflowX: 'auto' }}><table className="tbl"><thead><tr><th>Name</th><th>Package</th><th>Status</th><th>Your bonus</th><th>Date</th></tr></thead><tbody>
-          {me.referrals.map((r, i) => <tr key={i}><td>{r.name}</td><td>{r.package.toUpperCase()}</td><td><span className={'pill ' + r.status}>{r.status === 'approved' ? 'confirmed' : r.status === 'pending' ? 'awaiting confirmation' : 'not confirmed'}</span></td><td>{r.status === 'approved' ? N(r.amount) : <span style={{ color: '#999' }}>{N(r.amount)}</span>}</td><td>{new Date(r.date).toLocaleDateString('en-NG')}</td></tr>)}
+          {me.referrals.map((r, i) => <tr key={i}><td>{r.name}</td><td>{r.package === 'masterclass' ? 'MASTERCLASS' : r.package.toUpperCase()}</td><td><span className={'pill ' + r.status}>{r.status === 'approved' ? 'confirmed' : r.status === 'pending' ? 'awaiting confirmation' : 'not confirmed'}</span></td><td>{r.status === 'approved' ? N(r.amount) : <span style={{ color: '#999' }}>{N(r.amount)}</span>}</td><td>{new Date(r.date).toLocaleDateString('en-NG')}</td></tr>)}
         </tbody></table></div> : <p className="note">No referrals yet. Share your link to start earning.</p>}
       </section>
       {me.payouts.length > 0 && <section className="formcard" style={{ gridColumn: '1/-1' }}><h3><Icon name="BookOpen" size={20} /> Payout history</h3>
