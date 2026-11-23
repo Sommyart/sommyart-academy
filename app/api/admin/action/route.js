@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase, getSettings, links } from '@/lib/supabase';
 import { send, mailReady, tplWelcome, tplNews, wrap, SITE_URL, tplBadge, tplCert, tplJob, tplRefEarned, tplRefPaid, tplRefRejected, tplOnboarding, tplScholarCode, addStudentContact, tplCertPortal } from '@/lib/mail';
+import { issueReceipt } from '@/lib/receipts';
+import { PACKAGES as PKGS } from '@/lib/config';
 import { revalidatePath } from 'next/cache';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
 export const maxDuration = 300;
@@ -15,7 +17,7 @@ export async function POST(req) {
     if (!mailReady()) return NextResponse.json({ row, emailed: false });
     try {
       if (b.type === 'approve' && !b.resend && row.referrer_id) { const { data: rd } = await supabase.rpc('admin_referrers', { k }); const ref = (rd?.referrers || []).find(x => x.id === row.referrer_id); if (ref) await send(ref.email, `You earned ₦${(row.amount / 10).toLocaleString('en-NG')} 🎉`, tplRefEarned(ref.name, row.amount / 10, row.package, ref.balance)).catch(() => {}); }
-      if (b.type === 'approve') { const s = await getSettings(); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, links(row.package === 'vip' ? s.vip_links : s.regular_links))); }
+      if (b.type === 'approve') { const s = await getSettings(); await send(row.email, 'Welcome to Sommyart Academy 🎉 Your classroom access', tplWelcome(row, links(row.package === 'vip' ? s.vip_links : s.regular_links))); if (row.amount > 0) await issueReceipt({ kind: 'enrollment', source_id: row.id, name: row.full_name, email: row.email, item: PKGS[row.package]?.name || 'Sommyart Academy enrollment', amount: row.amount, method: row.payment_method, reference: row.paystack_ref }); }
       else await send(row.email, 'About your Sommyart Academy payment', wrap('We could not confirm your payment', `<p>Hi ${row.full_name.replace(/</g,'')},</p><p>We could not confirm the payment receipt you uploaded. Please reply to this email or message us on WhatsApp (+234 913 455 9428) so we can sort it out quickly.</p><p>Sommyart Academy Team</p>`));
       return NextResponse.json({ row, emailed: true });
     } catch (e) { return NextResponse.json({ row, emailed: false, note: 'Gmail error: ' + e.message }); }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin } from '@/lib/admin';
-import { SUPABASE_URL } from '@/lib/config';
+import { SUPABASE_URL, PACKAGES } from '@/lib/config';
+import { issueReceipt } from '@/lib/receipts';
 export const dynamic = 'force-dynamic';
 const TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
 export async function POST(req) {
@@ -21,5 +22,7 @@ export async function POST(req) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/enrollments?id=eq.${id}`, { method: 'PATCH', headers: { ...h, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ receipt_path: path, amount }) });
   const rows = await r.json().catch(() => []);
   if (!r.ok || !rows[0]) return NextResponse.json({ error: 'Could not update the record' }, { status: 502 });
-  return NextResponse.json({ row: rows[0] });
+  const e = rows[0];
+  if (e.status === 'approved' && amount > 0) await issueReceipt({ kind: 'enrollment', source_id: e.id, name: e.full_name, email: e.email, item: PACKAGES[e.package]?.name || 'Sommyart Academy enrollment', amount, method: 'transfer' });
+  return NextResponse.json({ row: e });
 }
