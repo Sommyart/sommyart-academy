@@ -9,7 +9,7 @@ export default function Chat() {
     </a>
     {open && (<div className="bot-panel" role="dialog" aria-label="Sommy AI Guide">
       <header><span>Sommy AI Guide</span><button onClick={() => setOpen(false)} aria-label="Close">×</button></header>
-      <iframe src="https://sommy-ai-guide.lovable.app" title="Sommy AI Guide" allow="microphone; clipboard-write" />
+      <iframe src="https://sommy.sommyartacademy.site" title="Sommy AI Guide" allow="microphone; clipboard-write" />
     </div>)}
     <button className={'bot-fab' + (open ? ' open' : '')} onClick={() => setOpen(!open)} aria-label={open ? 'Close chat' : 'Chat with Sommy AI support'} title={open ? 'Close chat' : 'Need help? Chat with Sommy AI'}>
       <span className="bot-ring" aria-hidden="true" /><span className="bot-ring r2" aria-hidden="true" />
