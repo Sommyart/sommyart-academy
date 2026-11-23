@@ -10,7 +10,7 @@ const csp = [
   `img-src 'self' data: blob: https:`,
   "media-src 'self' blob: " + SB + ' ' + R2S3 + (R2 ? ' ' + R2 : ''),
   `connect-src 'self' ${SB} ${R2S3} wss://pkaatuzohjwjipvixiog.supabase.co https://vitals.vercel-insights.com`,
-  "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://sommy-ai-guide.lovable.app",
+  "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://sommy.sommyartacademy.site",
   "frame-ancestors 'none'",
   "form-action 'self' https://checkout.paystack.com",
   "base-uri 'self'",
@@ -23,7 +23,7 @@ const headers = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-  { key: 'Permissions-Policy', value: 'camera=(), geolocation=(), payment=(), usb=(), microphone=(self "https://sommy-ai-guide.lovable.app")' },
+  { key: 'Permissions-Policy', value: 'camera=(), geolocation=(), payment=(), usb=(), microphone=(self "https://sommy.sommyartacademy.site")' },
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
 ];
 module.exports = { reactStrictMode: true, poweredByHeader: false, env: { NEXT_PUBLIC_R2_URL: R2 }, images: { remotePatterns: [{ protocol: 'https', hostname: 'pkaatuzohjwjipvixiog.supabase.co', pathname: '/storage/v1/object/public/**' }, ...(R2HOST ? [{ protocol: 'https', hostname: R2HOST, pathname: '/**' }] : [])], formats: ['image/webp'], minimumCacheTTL: 31536000 }, async headers() { return [{ source: '/:path*', headers }]; } };
