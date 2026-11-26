@@ -559,10 +559,11 @@ section{padding:110px 0}
 @media(max-width:640px){
  .st-card{grid-template-columns:44px 1fr;gap:10px;padding:12px}
  .st-card .st-av{width:44px;height:44px;font-size:12px}
- .st-card b{font-size:15px}
+ .st-card>div:nth-child(2)>b{font-size:15px}
  .st-card .pill{font-size:11px;padding:2px 8px}
  .st-card>div:nth-child(2)>div{font-size:12px!important}
  .st-card .acts{grid-column:1/-1;max-width:none;justify-content:flex-start}
  .st-card .acts .btn.sm,.st-card .acts label.btn{padding:6px 10px;font-size:12px}
  .st-card .acts select{font-size:12px;max-width:110px}
 }
+.st-card .acts label.btn,.st-card .acts button{margin:0!important}
