@@ -29,8 +29,8 @@ export default function StudentsTab({ students: init, setMsg }) {
       <input placeholder="Search students" value={q} onChange={e => setQ(e.target.value)} style={{ flex: '1 1 220px' }} />
       <select value={f} onChange={e => setF(e.target.value)} style={{ width: 'auto' }}><option value="all">All ({list.length})</option><option value="pending">Awaiting approval ({pending})</option><option value="regular">Regular</option><option value="vip">VIP</option><option value="unverified">Email not confirmed</option></select>
     </div>
-    {shown.length ? shown.map(s => <div key={s.id} className="row-card" style={{ gridTemplateColumns: '60px 1fr auto' }}>
-      {s.photo_url ? <img src={opt(s.photo_url, 96)} alt="" style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover' }} /> : <span className="thumb" style={{ width: 60, height: 60, borderRadius: '50%' }}>{s.first_name[0]}{s.last_name[0]}</span>}
+    {shown.length ? shown.map(s => <div key={s.id} className="row-card st-card">
+      {s.photo_url ? <img src={opt(s.photo_url, 96)} alt="" className="st-av" style={{ borderRadius: '50%', objectFit: 'cover' }} /> : <span className="thumb st-av" style={{ borderRadius: '50%' }}>{s.first_name[0]}{s.last_name[0]}</span>}
       <div><b>{s.first_name} {s.last_name}</b> {s.badge ? <span className={'pill ' + s.badge}>{s.badge.toUpperCase()}</span> : s.verified ? <span className="pill pending">awaiting approval</span> : <span className="pill rejected">email not confirmed</span>} {s.scholarship && <span className="pill schol">🎓 Scholarship</span>} {s.bootcamp && <span className="pill boot">🏕️ Bootcamp</span>} {s.completed && <span className="pill approved">completed</span>}
         <div style={{ fontSize: 13, color: '#555' }}>{s.email}{s.phone ? ' · ' + s.phone : ''}{s.gender ? ' · ' + s.gender : ''} · joined {new Date(s.created_at).toLocaleDateString('en-NG')}{s.paid ? <> · <b style={{ color: '#11834a' }}>paid {s.paid.toUpperCase()}</b></> : ' · no matching payment found'}</div>
         {s.certificate_url && <a href={s.certificate_url} target="_blank" rel="noreferrer" style={{ fontSize: 13 }}>View certificate</a>}</div>

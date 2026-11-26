@@ -549,3 +549,20 @@ section{padding:110px 0}
 .proj form{display:grid;gap:8px}.proj input[type=url],.proj textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;font:inherit}
 .proj small{color:#666}.proj-ok{color:#11834a;font-weight:600}.proj-err{color:#c0262d;font-weight:600}
 .proj-mine{margin-top:14px;display:grid;gap:4px;font-size:14px}
+/* Admin student cards: compact and phone friendly */
+.st-card{grid-template-columns:60px 1fr auto}
+.st-card .st-av{width:60px;height:60px}
+.st-card>div:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.st-card .acts{gap:6px;justify-content:flex-end;max-width:360px}
+.st-card .acts .btn.sm,.st-card .acts label.btn{padding:7px 12px;font-size:13px}
+.st-card .acts select{padding:6px 8px!important;font-size:13px}
+@media(max-width:640px){
+ .st-card{grid-template-columns:44px 1fr;gap:10px;padding:12px}
+ .st-card .st-av{width:44px;height:44px;font-size:12px}
+ .st-card b{font-size:15px}
+ .st-card .pill{font-size:11px;padding:2px 8px}
+ .st-card>div:nth-child(2)>div{font-size:12px!important}
+ .st-card .acts{grid-column:1/-1;max-width:none;justify-content:flex-start}
+ .st-card .acts .btn.sm,.st-card .acts label.btn{padding:6px 10px;font-size:12px}
+ .st-card .acts select{font-size:12px;max-width:110px}
+}
