@@ -35,7 +35,7 @@ export default function Auth() {
       </>) : (<>
         {mode === 'signup' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}><div><label>First name</label><input required {...set('first')} /></div><div><label>Surname</label><input required {...set('last')} /></div></div>}
         {mode === 'signup' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}><div><label>Gender</label><select required {...set('gender')}><option value="" disabled>Select</option><option>Male</option><option>Female</option></select></div><div><label>Phone number</label><input required inputMode="tel" {...set('phone')} placeholder="+234 80..." /></div></div>}
-        <label>Email</label><input required type="email" {...set('email')} placeholder={mode === 'signup' ? 'The exact email you paid with' : ''} />
+        <label>Email</label><input required type="email" {...set('email')} placeholder={mode === 'signup' ? 'Your email (use the one you paid with, if you paid)' : ''} />
         {needCode && <><label>🎓 Scholarship tracking code</label><input required value={f.code} onChange={e => setF({ ...f, code: e.target.value.toUpperCase() })} placeholder="SCH-XXXXXX" style={{ letterSpacing: 2, fontWeight: 600 }} /><p className="note" style={{ marginTop: 4 }}>It's in your scholarship email from Sommyart Academy.</p></>}
         <label>Password</label><div style={{ position: 'relative' }}><input required type={show ? 'text' : 'password'} minLength={mode === 'signup' ? 8 : 1} {...set('password')} placeholder={mode === 'signup' ? 'At least 8 characters' : ''} /><button type="button" className="peek" onClick={() => setShow(!show)}>{show ? 'Hide' : 'Show'}</button></div>
         {mode === 'login' && <p className="note" style={{ textAlign: 'right', marginTop: 6 }}><a href="#" onClick={(e) => { e.preventDefault(); setMode('forgot'); setErr(''); setNote(''); }}>Forgot password?</a></p>}
@@ -43,7 +43,7 @@ export default function Auth() {
       </>)}
       {err && <p className="err">{err}</p>}
       <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 18 }} disabled={busy}>{busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : mode === 'login' ? 'Log in' : 'Confirm & continue'}</button>
-      {mode === 'signup' && <p className="note" style={{ textAlign: 'center' }}>Only confirmed Sommyart students can create an account.</p>}
+      {mode === 'signup' && <p className="note" style={{ textAlign: 'center' }}>New accounts are reviewed by our team. You'll get an email once your account is approved.</p>}
     </>}
     </form></div>);
 }

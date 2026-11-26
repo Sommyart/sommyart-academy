@@ -13,20 +13,34 @@ export default function StudentsTab({ students: init, setMsg }) {
     let url; try { url = await uploadFile(file, 'certificate'); } catch (x) { setMsg('✗ ' + x.message + ' (PDF, PNG or JPG under 20MB)'); setBusy(''); return; }
     await upd(s, { certificate_url: url, completed: true }, `Certificate added for ${s.first_name}.`);
   }
+  async function approve(s, pk, kind, label) {
+    if (!confirm(`Approve ${s.first_name} ${s.last_name} as ${label}?\n\nThis adds them to your enrollments${kind === 'paid' ? ` (counted in revenue as ${pk === 'vip' ? '₦50,000' : '₦30,000'})` : ' with a scholarship code'} and emails their welcome + classroom links.`)) return;
+    setBusy(s.id); try { await act({ type: 'signup-approve', id: s.id, package: pk, kind }); setList(l => l.map(x => x.id === s.id ? { ...x, badge: pk, scholarship: kind === 'scholarship', paid: pk } : x)); setMsg(`✓ ${s.first_name} approved as ${label}. Welcome email sent.`); } catch (x) { setMsg('✗ ' + x.message); } setBusy('');
+  }
+  async function decline(s) {
+    if (!confirm(`Decline ${s.first_name} ${s.last_name}? Their account will be deleted (no email is sent).`)) return;
+    setBusy(s.id); try { await act({ type: 'signup-decline', id: s.id }); setList(l => l.filter(x => x.id !== s.id)); setMsg(`✓ ${s.first_name}'s sign-up declined.`); } catch (x) { setMsg('✗ ' + x.message); } setBusy('');
+  }
   const shown = list.filter(s => (f === 'all' || (f === 'pending' ? !s.badge && s.verified : f === 'unverified' ? !s.verified : s.badge === f)) && (s.email + s.first_name + s.last_name).toLowerCase().includes(q.toLowerCase()));
   const pending = list.filter(s => s.verified && !s.badge).length;
   return (<div>
-    {pending > 0 && <div className="banner" style={{ marginTop: 0, marginBottom: 14 }}>🔔 {pending} student{pending > 1 ? 's' : ''} waiting for a badge.</div>}
+    {pending > 0 && <div className="banner" style={{ marginTop: 0, marginBottom: 14 }}>🔔 {pending} new sign-up{pending > 1 ? 's' : ''} waiting for approval. Use the "Approve as" buttons below.</div>}
     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 14 }}>
       <input placeholder="Search students" value={q} onChange={e => setQ(e.target.value)} style={{ flex: '1 1 220px' }} />
-      <select value={f} onChange={e => setF(e.target.value)} style={{ width: 'auto' }}><option value="all">All ({list.length})</option><option value="pending">Needs badge ({pending})</option><option value="regular">Regular</option><option value="vip">VIP</option><option value="unverified">Email not confirmed</option></select>
+      <select value={f} onChange={e => setF(e.target.value)} style={{ width: 'auto' }}><option value="all">All ({list.length})</option><option value="pending">Awaiting approval ({pending})</option><option value="regular">Regular</option><option value="vip">VIP</option><option value="unverified">Email not confirmed</option></select>
     </div>
     {shown.length ? shown.map(s => <div key={s.id} className="row-card" style={{ gridTemplateColumns: '60px 1fr auto' }}>
       {s.photo_url ? <img src={opt(s.photo_url, 96)} alt="" style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover' }} /> : <span className="thumb" style={{ width: 60, height: 60, borderRadius: '50%' }}>{s.first_name[0]}{s.last_name[0]}</span>}
-      <div><b>{s.first_name} {s.last_name}</b> {s.badge ? <span className={'pill ' + s.badge}>{s.badge.toUpperCase()}</span> : s.verified ? <span className="pill pending">needs badge</span> : <span className="pill rejected">email not confirmed</span>} {s.scholarship && <span className="pill schol">🎓 Scholarship</span>} {s.bootcamp && <span className="pill boot">🏕️ Bootcamp</span>} {s.completed && <span className="pill approved">completed</span>}
+      <div><b>{s.first_name} {s.last_name}</b> {s.badge ? <span className={'pill ' + s.badge}>{s.badge.toUpperCase()}</span> : s.verified ? <span className="pill pending">awaiting approval</span> : <span className="pill rejected">email not confirmed</span>} {s.scholarship && <span className="pill schol">🎓 Scholarship</span>} {s.bootcamp && <span className="pill boot">🏕️ Bootcamp</span>} {s.completed && <span className="pill approved">completed</span>}
         <div style={{ fontSize: 13, color: '#555' }}>{s.email}{s.phone ? ' · ' + s.phone : ''}{s.gender ? ' · ' + s.gender : ''} · joined {new Date(s.created_at).toLocaleDateString('en-NG')}{s.paid ? <> · <b style={{ color: '#11834a' }}>paid {s.paid.toUpperCase()}</b></> : ' · no matching payment found'}</div>
         {s.certificate_url && <a href={s.certificate_url} target="_blank" rel="noreferrer" style={{ fontSize: 13 }}>View certificate</a>}</div>
       <div className="acts">
+        {s.verified && !s.badge && <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', width: '100%', paddingBottom: 6 }}>
+          <small style={{ fontWeight: 700, color: '#3B2B9B' }}>Approve as:</small>
+          {[['regular', 'paid', 'Regular'], ['vip', 'paid', 'VIP'], ['regular', 'scholarship', 'Regular · Scholarship'], ['vip', 'scholarship', 'VIP · Scholarship']].map(([pk, kind, label]) =>
+            <button key={label} className="btn btn-primary sm" disabled={busy === s.id} onClick={() => approve(s, pk, kind, label)}>{label}</button>)}
+          <button className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d' }} disabled={busy === s.id} onClick={() => decline(s)}>Decline</button>
+        </div>}
         <select disabled={busy === s.id || !s.verified} value={s.badge || ''} onChange={e => upd(s, { badge: e.target.value }, e.target.value ? `${s.first_name} is now ${e.target.value.toUpperCase()}.` : 'Badge removed.')} style={{ width: 'auto', padding: '8px 10px' }}>
           <option value="">No badge</option><option value="regular">Regular</option><option value="vip">VIP</option></select>
         <button className="btn sm" style={{ border: '1px solid #ddd' }} disabled={busy === s.id || !s.badge} onClick={() => upd(s, { completed: !s.completed }, s.completed ? 'Marked as not completed.' : 'Marked as completed.')}>{s.completed ? 'Undo complete' : 'Mark completed'}</button>

@@ -10,6 +10,21 @@ export const maxDuration = 300;
 export async function POST(req) {
   if (!isAdmin()) return bad('Not logged in', 401);
   const b = await req.json().catch(() => ({})); const k = ADMIN_KEY();
+  if (b.type === 'signup-approve' || b.type === 'signup-decline') {
+    const { data: st } = await supabase.rpc('st_get', { k, p_id: b.id }); if (!st?.id) return bad('Student not found');
+    if (b.type === 'signup-decline') {
+      const { data } = await supabase.rpc('st_decline', { k, p_id: b.id }); if (!data || data.error) return bad(data?.error || 'Could not decline');
+      return NextResponse.json({ ok: true });
+    }
+    const pkg = b.package === 'vip' ? 'vip' : 'regular'; const kind = b.kind === 'scholarship' ? 'scholarship' : 'paid';
+    const { data: row, error } = await supabase.rpc('admin_add_student', { k, p: { first: st.first_name || '', surname: st.last_name || '', gender: st.gender || '', email: st.email, phone: st.phone || '', package: pkg, kind } });
+    if (error || !row?.id) return bad('Could not approve: ' + (error?.message || 'unknown error'));
+    const s = await getSettings(); const ls = links(pkg === 'vip' ? s.vip_links : s.regular_links);
+    await send(row.email, 'Your Sommyart Academy account is approved 🎉 Your classroom access', tplWelcome(row, ls));
+    await send(row.email, 'How to join your Google Classroom 🎓 (video guide)', tplOnboarding(row, ls)).catch(() => {});
+    await addStudentContact(row.email, row.first_name).catch(() => {});
+    return NextResponse.json({ ok: true, row });
+  }
   if (b.type === 'approve' || b.type === 'reject') {
     const { data: row, error } = await supabase.rpc('admin_set_status', { k, p_id: b.id, p_status: b.type === 'approve' ? 'approved' : 'rejected' });
     if (error || !row) return bad('Could not update');

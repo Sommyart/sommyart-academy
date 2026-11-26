@@ -28,7 +28,7 @@ export async function POST(req) {
   if (a === 'verify') {
     const { data } = await supabase.rpc('st_verify', { k: K(), p_email: email, p_otp: String(b.otp || '') });
     if (!data || data.error) return err(data?.error || 'Could not verify.');
-    await send(process.env.ADMIN_EMAIL || 'josiahbenmoshe@gmail.com', `🎓 New student account: ${data.first} ${data.last}`, tplNewStudent(data)).catch(() => {});
+    await send(process.env.ADMIN_EMAIL || 'josiahbenmoshe@gmail.com', data.badge ? `🎓 New student account: ${data.first} ${data.last}` : `🔔 Approve new sign-up: ${data.first} ${data.last}`, tplNewStudent(data)).catch(() => {});
     const res = NextResponse.json({ ok: true }); setSession(res, data.token); return res;
   }
   if (a === 'forgot') {
