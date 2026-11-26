@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Quiz from './Quiz';
+import Project from './Project';
 const fmt = (s) => { s = Math.round(s || 0); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 export default function Player({ course, lessons: init, cert: initCert }) {
   const [lessons, setLessons] = useState(init); const [cert, setCert] = useState(initCert); const [toast, setToast] = useState('');
@@ -44,6 +45,7 @@ export default function Player({ course, lessons: init, cert: initCert }) {
       {L?.quiz_count > 0 && (L.completed || L.quiz_score != null
         ? <Quiz key={L.id} lessonId={L.id} onDone={(j) => setLessons(ls => ls.map((x, i) => x.id === L.id ? { ...x, quiz_score: j.score, quiz_total: j.total } : i === idx + 1 ? { ...x, locked: false } : x))} />
         : <div className="quiz-lockd">📝 This lesson has a {L.quiz_count}-question quiz. It opens when you finish watching the video.</div>)}
+      {course.project_prompt && <Project course={course} />}
     </div>
     <aside className="lms-side">
       <div className="lms-prog"><b>{pct}% complete</b><div className="lms-bar"><i style={{ width: pct + '%' }} /></div><small>{done} of {lessons.length} lessons</small>

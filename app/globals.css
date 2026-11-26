@@ -541,3 +541,11 @@ section{padding:110px 0}
 .quiz-why{font-size:14px;color:#444;background:#FFF7E8;border-radius:10px;padding:8px 12px;margin-top:8px!important}
 .quiz-lockd{margin-top:18px;padding:12px 14px;background:#F4F2FF;border-radius:12px;font-size:14px;color:#3B3591}
 .lms-list button.lockd{opacity:.55;cursor:not-allowed}
+/* LMS project submission */
+.proj{margin-top:28px;border:1px solid var(--line,#E5E7EB);border-radius:16px;padding:20px;background:linear-gradient(135deg,#F7FAFF,#FBF3FF)}
+.proj h3{margin:0 0 6px}.proj-brief{white-space:pre-line;color:#444;margin:0 0 14px}
+.proj-tabs{display:flex;gap:8px;margin-bottom:12px}.proj-tabs button{flex:1;padding:10px;border-radius:12px;border:1px solid #ddd;background:#fff;font-weight:600;cursor:pointer}
+.proj-tabs button.on{border-color:#8B35D7;background:#F3E8FF;color:#3B2B9B}
+.proj form{display:grid;gap:8px}.proj input[type=url],.proj textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;font:inherit}
+.proj small{color:#666}.proj-ok{color:#11834a;font-weight:600}.proj-err{color:#c0262d;font-weight:600}
+.proj-mine{margin-top:14px;display:grid;gap:4px;font-size:14px}

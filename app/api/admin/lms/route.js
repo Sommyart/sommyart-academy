@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAdmin, ADMIN_KEY } from '@/lib/admin';
 import { supabase } from '@/lib/supabase';
-import { r2Ready, presignPut, setCors, LMS_BUCKET } from '@/lib/r2';
+import { r2Ready, presignPut, presignGet, setCors, LMS_BUCKET } from '@/lib/r2';
 import { revalidatePath } from 'next/cache';
 export const dynamic = 'force-dynamic';
 const bad = (m, s = 400) => NextResponse.json({ error: m }, { status: s });
@@ -32,6 +32,11 @@ export async function POST(req) {
         clean.push({ q: String(q.q).trim().slice(0, 500), options: opts.map(o => o.slice(0, 300)), answer: ans.sort(), multi: ans.length > 1 || !!q.multi, why: String(q.why || '').trim().slice(0, 500) });
       }
       return out(await rpc('lms_quiz_save', { p_lesson: b.id, p_questions: clean }), 'ok');
+    }
+    case 'submissions': {
+      const r = await rpc('lms_sub_admin', { p_course: b.id }); if (r.error) return bad('Could not load submissions');
+      const rows = await Promise.all((r.data || []).map(async x => x.kind === 'file' ? { ...x, view: await presignGet(x.file_key, 6 * 3600, LMS_BUCKET()) } : x));
+      return NextResponse.json({ rows });
     }
     case 'progress': return out(await rpc('lms_admin_progress', { p_course: b.id }), 'rows');
     case 'upload-url': {

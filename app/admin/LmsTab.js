@@ -16,7 +16,7 @@ function UploadBar({ u }) {
   </div>);
 }
 const fmt = (s) => s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : '';
-const blank = { id: '', title: '', slug: '', description: '', cert_name: '', access: 'all', published: false, open_from: '' };
+const blank = { id: '', title: '', slug: '', description: '', cert_name: '', access: 'all', published: false, open_from: '', mc_slug: '', project_prompt: '' };
 const day = (t) => t ? new Date(t).toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' }) : '';
 const blankQ = () => ({ q: '', options: ['', '', '', ''], answer: [], why: '' });
 function QuizEditor({ lesson, onClose, onSaved, setMsg }) {
@@ -46,7 +46,7 @@ function QuizEditor({ lesson, onClose, onSaved, setMsg }) {
 }
 export default function LmsTab({ setMsg }) {
   const [data, setData] = useState(null); const [cid, setCid] = useState(''); const [edit, setEdit] = useState(null); const [busy, setBusy] = useState('');
-  const [nl, setNl] = useState({ title: '', description: '' }); const [file, setFile] = useState(null); const [up, setUp] = useState(null); const [quizFor, setQuizFor] = useState(null); const [prog, setProg] = useState(null);
+  const [nl, setNl] = useState({ title: '', description: '' }); const [file, setFile] = useState(null); const [up, setUp] = useState(null); const [quizFor, setQuizFor] = useState(null); const [prog, setProg] = useState(null); const [subs, setSubs] = useState(null);
   const track = (name) => { const t0 = Date.now(); setUp({ name, pct: 0, loaded: 0, total: 0, speed: 0 }); return (loaded, total) => { const sec = (Date.now() - t0) / 1000; setUp({ name, loaded, total, pct: Math.min(100, Math.round(loaded / total * 100)), speed: sec > 1 ? loaded / sec : 0 }); }; };
   useEffect(() => { if (!up) return; const h = (e) => { e.preventDefault(); e.returnValue = ''; }; window.addEventListener('beforeunload', h); return () => window.removeEventListener('beforeunload', h); }, [!!up]);
   const load = async () => { try { const { data } = await api({ type: 'get' }); setData(data); } catch (x) { setMsg('✗ ' + x.message); } };
@@ -83,14 +83,16 @@ export default function LmsTab({ setMsg }) {
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 8 }}>
         <label style={{ fontWeight: 400 }}>Who can watch: <select value={edit.access} onChange={e => setEdit({ ...edit, access: e.target.value })} style={{ width: 'auto' }}><option value="all">All enrolled students</option><option value="vip">VIP students only</option></select></label>
         <label style={{ fontWeight: 400 }}>Only students who enrolled from: <input type="date" style={{ width: 'auto' }} value={day(edit.open_from)} onChange={e => setEdit({ ...edit, open_from: e.target.value ? e.target.value + 'T00:00:00+01:00' : '' })} /> <small style={{ color: '#666' }}>(leave empty for all students)</small></label>
+        <label style={{ fontWeight: 400 }}>Live masterclass: <select value={edit.mc_slug || ''} onChange={e => setEdit({ ...edit, mc_slug: e.target.value })} style={{ width: 'auto' }}><option value="">Not linked</option><option value="ai-creative-builder">AI Creative Builder Masterclass</option></select> <small style={{ color: '#666' }}>(when linked: everyone who paid for it + VIP students)</small></label>
         <label style={{ fontWeight: 400, display: 'flex', gap: 8, alignItems: 'center' }}><input type="checkbox" style={{ width: 18, height: 18 }} checked={!!edit.published} onChange={e => setEdit({ ...edit, published: e.target.checked })} /> Published (students can see it)</label>
       </div>
+      <label style={{ marginTop: 10 }}>Project brief (optional) <small style={{ fontWeight: 400, color: '#666' }}>Shows a "Submit your project" box where students paste a link or upload a video. Leave empty for no project.</small></label><textarea rows={3} value={edit.project_prompt || ''} onChange={e => setEdit({ ...edit, project_prompt: e.target.value })} />
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}><button className="btn btn-primary sm" disabled={busy === 'c'}>{busy === 'c' ? 'Saving…' : 'Save course'}</button><button type="button" className="btn sm" style={{ border: '1px solid #ddd' }} onClick={() => setEdit(null)}>Cancel</button>
         {edit.id && <button type="button" className="btn sm" style={{ border: '1px solid #f2b8b8', color: '#c0262d', marginLeft: 'auto' }} onClick={async () => { if (!confirm(`Delete "${edit.title}" and all its lessons and progress? This cannot be undone.`)) return; await doAct({ type: 'course-delete', id: edit.id }, '✓ Course deleted.'); setEdit(null); setCid(''); }}>Delete course</button>}</div>
     </form>}
     {course && !edit && <>
       <div className="formcard" style={{ maxWidth: 860, marginTop: 16 }}>
-        <b>{course.title}</b> <span className={'pill ' + (course.published ? 'approved' : 'pending')}>{course.published ? 'Published' : 'Draft'}</span> <small style={{ color: '#666' }}>· {course.access === 'vip' ? 'VIP only' : 'All enrolled students'} · {course.open_from ? `enrolled from ${new Date(course.open_from).toLocaleDateString('en-GB', { timeZone: 'Africa/Lagos', day: 'numeric', month: 'short', year: 'numeric' })}` : 'all enrollment dates'} · certificate: “{course.cert_name}” · /learn/{course.slug}</small>
+        <b>{course.title}</b> <span className={'pill ' + (course.published ? 'approved' : 'pending')}>{course.published ? 'Published' : 'Draft'}</span> <small style={{ color: '#666' }}>· {course.mc_slug ? 'Masterclass buyers + VIP' : course.access === 'vip' ? 'VIP only' : 'All enrolled students'} · {course.open_from ? `enrolled from ${new Date(course.open_from).toLocaleDateString('en-GB', { timeZone: 'Africa/Lagos', day: 'numeric', month: 'short', year: 'numeric' })}` : 'all enrollment dates'} · certificate: “{course.cert_name}” · /learn/{course.slug}</small>
         <h4 style={{ margin: '16px 0 8px' }}>Lessons ({lessons.length})</h4>
         <UploadBar u={up} />
         {lessons.map((l, i) => <div key={l.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 0', borderTop: '1px solid #f0f0f0', flexWrap: 'wrap' }}>
@@ -119,6 +121,14 @@ export default function LmsTab({ setMsg }) {
           {prog.map(r => <tr key={r.email} style={{ borderTop: '1px solid #f0f0f0' }}><td style={{ padding: '8px 0' }}>{r.name}<br /><small style={{ color: '#666' }}>{r.email}</small></td><td>{r.done}/{r.total} {r.total && r.done === r.total ? '🏆' : `(${r.total ? Math.round(r.done / r.total * 100) : 0}%)`}</td><td>{new Date(r.last_seen).toLocaleString('en-NG')}</td></tr>)}
         </tbody></table> : <p className="note">No student has started this course yet.</p>)}
       </div>
+      {course.project_prompt && <div className="formcard" style={{ maxWidth: 860, marginTop: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><b>🚀 Project submissions</b><button className="btn sm" style={{ border: '1px solid #ddd' }} onClick={async () => { try { const { rows } = await api({ type: 'submissions', id: cid }); setSubs(rows); } catch (x) { setMsg('✗ ' + x.message); } }}>{subs ? 'Refresh' : 'Show submissions'}</button></div>
+        {subs && (subs.length ? subs.map(r => <div key={r.id} style={{ borderTop: '1px solid #f0f0f0', padding: '10px 0', fontSize: 14 }}>
+          <b>{r.name || r.email}</b> <small style={{ color: '#666' }}>{r.email}{r.phone ? ' · ' + r.phone : ''} · {new Date(r.created_at).toLocaleString('en-NG')}</small><br />
+          {r.kind === 'link' ? <a href={r.url} target="_blank" rel="noreferrer">🔗 Open project link</a> : <a href={r.view} target="_blank" rel="noreferrer">🎬 Watch uploaded video{r.file_name ? ` (${r.file_name})` : ''}</a>}
+          {r.note && <div style={{ color: '#444', marginTop: 4 }}>💬 {r.note}</div>}
+        </div>) : <p className="note">No submissions yet.</p>)}
+      </div>}
     </>}
   </div>);
 }
